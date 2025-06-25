@@ -1,0 +1,19 @@
+
+
+# Ignore all CSV files
+*.csv
+*.db
+
+# Ignore all JSON files
+*.json
+
+# Ignore all binary files
+*.bin
+
+# Ignore specific file/directory
+atcom_desktop_db
+wero
+
+*.env
+# Ignore all log files
+*.log
