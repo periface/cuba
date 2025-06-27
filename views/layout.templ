@@ -1,0 +1,33 @@
+package views
+
+templ Layout(title string, content templ.Component) {
+	<html lang="es" dir="ltr" itemscope itemtype="https://schema.org/WebPage" prefix="og:http://ogp.me/ns#">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			<link rel="canonical" href="https://moderntemplate.site/"/>
+			<link rel="amphtml" href="https://moderntemplate.site/amp/index.html"/>
+			<link rel="icon" type="image/png" href="./img/icons/64x64.png"/>
+			<link rel="manifest" href="./manifest.json"/>
+			<!-- General -->
+			<meta name="application-name" content="HTML Template"/>
+			<meta name="author" content="Igor Agapov"/>
+			<meta name="description" content="Modern HTML Starter Template"/>
+			<meta name="keywords" content="modern, useful, html, html5, css, css3, javascript, js, template, boilerplate"/>
+			<meta name="referrer" content="strict-origin"/>
+			<meta itemprop="name" content="HTML Template"/>
+			<meta itemprop="description" content="Modern HTML Starter Template"/>
+			<meta itemprop="image" content="./img/icons/128x128.png"/>
+			<link rel="preload" href="static/css/normalice.css" as="style"/>
+			<link rel="stylesheet" href="static/css/normalice.css"/>
+			<link rel="stylesheet" href="static/css/skeleton.css"/>
+			<link rel="stylesheet" href="static/css/overrides.css"/>
+		</head>
+		<body class="main-body">
+			<main>
+				@content
+			</main>
+		</body>
+	</html>
+}

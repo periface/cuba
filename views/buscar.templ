@@ -1,0 +1,13 @@
+package views
+
+templ Buscar(registros []map[string]string, llmResponse string) {
+	<div class="card twelve columns" id="markdown">
+		{ llmResponse }
+	</div>
+}
+
+templ renderList(itemProps map[string]string) {
+	for clave, valor := range itemProps {
+		<li style="list-style: none; font-size: 1rem;"><strong>{ clave }:</strong> { valor }</li>
+	}
+}

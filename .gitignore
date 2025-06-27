@@ -3,7 +3,7 @@
 # Ignore all CSV files
 *.csv
 *.db
-
+cuba
 # Ignore all JSON files
 *.json
 

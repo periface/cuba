@@ -1,5 +1,21 @@
 package models
 
+type AppSheetsPayload struct {
+	Action     string              `json:"Action"`
+	Properties map[string]string   `json:"Properties"`
+	Rows       []map[string]string `json:"Rows"`
+}
+type LLMResponse struct {
+	Prompt   string
+	Response string
+}
+type BuscarResponse struct {
+	ObservacionesSat        []map[string]string
+	ContratosEncontrados    []map[string]string
+	EmpleadosEncontrados    []map[string]string
+	InformacionDelProveedor []map[string]string
+	AnalisisPreventivo      string
+}
 type CondonacionSAT struct {
 	ID                                              string `json:"id" csv:"id"`
 	AdministracionGeneralResponsableDeLaCancelacion string `json:"administracin_general_responsable_de_la_cancelacion"`
@@ -52,4 +68,7 @@ type CondonacionSAT struct {
 	TipoPersona2                                    string `json:"tipo_persona"` // Nota: parece haber un typo en el nombre original
 	LastUpdate                                      string `json:"last_update"`
 	FileName                                        string `json:"file_name"`
+	Clasificacion                                   string `json:"clasificacion"`
+
+	ClasificacionDescription string `json:"clasificacionDescription"`
 }

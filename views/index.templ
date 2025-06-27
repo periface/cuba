@@ -1,0 +1,21 @@
+package views
+
+templ Index(rfc string) {
+	<div class="loader" id="loader"></div>
+	<div class="container">
+		<div class="row">
+			<div class="three columns">
+				<img src="static/img/logo.svg" width="50px" height="50px"/>
+				<h6>
+					Analisis de Proveedores
+				</h6>
+			</div>
+		</div>
+		<input type="hidden" id="rfc" value={ rfc }/>
+		<input type="search" placeholder="RFC" id="searchInput"/>
+		<button type="button" id="searchButton">Buscar</button>
+		<div id="responseBody" class="row"></div>
+		<script src="static/lib/marked.min.js"></script>
+		<script src="static/index/index.js"></script>
+	</div>
+}
