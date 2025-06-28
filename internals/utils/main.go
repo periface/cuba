@@ -6,7 +6,10 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo"
+	"github.com/periface/cuba/views"
 )
 
 func get_os() string {
@@ -45,4 +48,29 @@ func ReadCsvFile(fileName string) ([][]string, error) {
 	}
 
 	return rows, nil
+}
+
+type Renderers struct {
+}
+
+func NewRenderers() *Renderers {
+	return &Renderers{}
+}
+
+func (r *Renderers) Render(title string, ctx echo.Context, statusCode int, t templ.Component) error {
+	page := views.Layout(title, t)
+	buf := templ.GetBuffer()
+	defer templ.ReleaseBuffer(buf)
+	if err := page.Render(ctx.Request().Context(), buf); err != nil {
+		return err
+	}
+	return ctx.HTML(statusCode, buf.String())
+}
+func (r *Renderers) RenderNoLayout(ctx echo.Context, statusCode int, t templ.Component) error {
+	buf := templ.GetBuffer()
+	defer templ.ReleaseBuffer(buf)
+	if err := t.Render(ctx.Request().Context(), buf); err != nil {
+		return err
+	}
+	return ctx.HTML(statusCode, buf.String())
 }

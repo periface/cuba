@@ -14,7 +14,6 @@ import (
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
-	"github.com/tmc/langchaingo/prompts"
 	"github.com/tmc/langchaingo/tools"
 
 	_ "github.com/tmc/langchaingo/tools/serpapi"
@@ -22,7 +21,6 @@ import (
 
 type ProveedorReviewer struct {
 	llm      llms.Model
-	template *prompts.PromptTemplate
 	executor *agents.Executor
 }
 
@@ -94,6 +92,7 @@ func (pr *ProveedorReviewer) ReviewProveedor(rfc string,
 	contratosStr := listToStr("Sin datos de contratos", buscarResponse.ContratosEncontrados)
 	empleadosEncontradosStr := listToStr("Sin datos de empleados como proveedores", buscarResponse.EmpleadosEncontrados)
 	informacionDelProveedorStr := listToStr("DGCyOP no tiene datos del proveedor", buscarResponse.InformacionDelProveedor)
+	representantesLegalesStr := listToStr("No se encontraron representantes legales", buscarResponse.RepresentantesLegales)
 	// Crear prompt claro para el agente
 	prompt := fmt.Sprintf(`Revisión de proveedor para la Secretaría de Administración del Estado de Tamaulipas:
 
@@ -107,23 +106,34 @@ Datos del proveedor:
 %s
 - Empleados con el mismo RFC
 %s
+- Representantes Legales en DGCyOP
+%s
 
-Instrucciones específicas:
+Instrucciones específicas:"
 1. Busca en internet usando el RFC "%s" y la razón social relacionada
 2. Analiza las observaciones del SAT
 3. Genera un reporte con:
    a) Actividades que realiza la empreza/persona
    b) Resumen de observaciones del SAT (máximo 3 líneas)
    c) Información reelevante sobre los contratos en los que participa (Si hay)
-   d) Hallazgos relevantes en la web (mencionar fuentes si hay)
+   d) Hallazgos relevantes en la web (mencionar fuentes si hay),
+		puedes usar el nombre de los representantes legales para buscar informacion sobre ellos
    e) Recomendación clara (aprobado/observaciones/rechazado)
    f) Si hay urls relevantes agregar links
 4. Formato: Español claro, máximo 2 párrafos
-5. Si no encuentras información relevante, indica "No se encontraron referencias públicas
-6. Si no hay datos sobre algo ignoralo
-7. Si solo hay datos de empleados de gobierno"`,
+5. Si hay imagenes o fotos relevantes (logos, notas, etc.) Agregalas
+6. Si no encuentras información relevante, indica "No se encontraron referencias públicas
+7. Si no hay datos sobre algo ignoralo
+8. Da prioridad a notas periodisticas o temas que puedan prevenir posibles polemicas
+9. Si solo hay datos de empleados de gobierno"`,
 
-		rfc, informacionDelProveedorStr, observacionesStr, contratosStr, empleadosEncontradosStr, rfc)
+		rfc,
+		informacionDelProveedorStr,
+		observacionesStr,
+		contratosStr,
+		empleadosEncontradosStr,
+		representantesLegalesStr,
+		rfc)
 
 	// Ejecutar con el agente (que usará la búsqueda web cuando sea necesario)
 	response, err := chains.Run(context.Background(), pr.executor, prompt)

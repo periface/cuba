@@ -14,6 +14,7 @@ type BuscarResponse struct {
 	ContratosEncontrados    []map[string]string
 	EmpleadosEncontrados    []map[string]string
 	InformacionDelProveedor []map[string]string
+	RepresentantesLegales   []map[string]string
 	AnalisisPreventivo      string
 }
 type CondonacionSAT struct {
