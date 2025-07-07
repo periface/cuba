@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/periface/cuba/internals/models"
 	"github.com/periface/cuba/internals/utils"
@@ -96,6 +97,7 @@ func (as *Appsheets) Insert(tableName string,
 }
 
 func RunHttpQuery(url string, body []byte) ([]map[string]string, error) {
+	time.Sleep(1 * time.Second)
 	client := &http.Client{}
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 

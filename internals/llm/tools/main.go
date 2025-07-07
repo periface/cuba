@@ -1,4 +1,4 @@
-package customtools
+package tools
 
 import (
 	"context"
@@ -50,7 +50,6 @@ func (t GoogleSearchTool) Call(ctx context.Context, input string) (string, error
 		return "", fmt.Errorf("fallo al crear el servicio de búsqueda: %w", err)
 	}
 
-
 	// Realizar la consulta de búsqueda
 	resp, err := svc.Cse.List().Cx(cseID).Q(input).Do()
 	if err != nil {
@@ -64,7 +63,7 @@ func (t GoogleSearchTool) Call(ctx context.Context, input string) (string, error
 
 	var sb strings.Builder
 	for i, item := range resp.Items {
-		if i >= 5 { // Limitar a los 5 primeros resultados para evitar respuestas muy largas
+		if i >= 8 { // Limitar a los 5 primeros resultados para evitar respuestas muy largas
 			break
 		}
 		sb.WriteString(fmt.Sprintf("Título: %s\n", item.Title))

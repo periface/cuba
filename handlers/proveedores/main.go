@@ -1,10 +1,12 @@
 package proveedores
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
 	"time"
+
 	"github.com/labstack/echo"
 	"github.com/periface/cuba/internals/llm"
 	"github.com/periface/cuba/internals/models"
@@ -50,7 +52,7 @@ func (chh *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		if err != nil {
 			slog.Error(err.Error())
 		}
-		appsheetsInstance.Insert("PROVEEDORES_ANALISIS", models.AppSheetsPayload{
+		_, err = appsheetsInstance.Insert("PROVEEDORES_ANALISIS", models.AppSheetsPayload{
 			Action: "Add",
 			Rows: []map[string]string{{
 				"Proveedor":          rfcQuery,
@@ -61,7 +63,7 @@ func (chh *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		})
 
 		if err != nil {
-			slog.Error("Instance appsheets")
+			slog.Error("Error notificando respuesta")
 			slog.Error(err.Error())
 		}
 
@@ -104,7 +106,7 @@ func buscarEmpleadosDeGobierno(rfc string, instance *appsheets.Appsheets) ([]map
 	if err != nil {
 		return nil, err
 	}
-	query := `Filter(EMPLEADOS, [RFC]=${rfc}")`
+	query := `Filter(EMPLEADOS, [RFC]=${rfc})`
 	query = strings.ReplaceAll(query, "${rfc}", rfc)
 	return instance.SearchIn(APIKEY, SECRET, "EMPLEADOS", models.AppSheetsPayload{
 		Action: "Find",
@@ -152,7 +154,7 @@ func buscarContratos(rfc string, instance *appsheets.Appsheets) ([]map[string]st
 func fetchProveedorInfo(rfcQuery string, appsheetsInstance *appsheets.Appsheets) models.BuscarResponse {
 	observacionesSat := proveedores.BuscarPorRfc(rfcQuery)
 	empleadosDeGobierno, err := buscarEmpleadosDeGobierno(rfcQuery, appsheetsInstance)
-
+	fmt.Println(empleadosDeGobierno)
 	if err != nil {
 		slog.Error(err.Error())
 	}
@@ -184,6 +186,7 @@ func fetchProveedorInfo(rfcQuery string, appsheetsInstance *appsheets.Appsheets)
 		ContratosEncontrados: getOnlyThisProps(contratos, []string{
 			"Concepto / Objeto del Contrato",
 			"No. de Contrato DGCYOP",
+			"Concepto detallado del contrato",
 			"Monto Total del Contrato",
 		}),
 		InformacionDelProveedor: getOnlyThisProps(datosDelProveedor, []string{

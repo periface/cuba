@@ -15,6 +15,7 @@ import (
 )
 
 var renderers = utils.NewRenderers()
+
 func mainHandler(c echo.Context) error {
 	rfcQuery := c.QueryParam("rfc")
 	component := views.Index(rfcQuery)
@@ -27,7 +28,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	handlers:= handlers.NewMainHandler()
+	handlers := handlers.NewMainHandler()
 	e.GET("/", mainHandler)
 	e.GET("/buscar", handlers.Proveedores.BuscarProveedor)
 	if err := e.Start(":1634"); err != nil && !errors.Is(err, http.ErrServerClosed) {
