@@ -66,7 +66,7 @@ func (chh *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 			slog.Error(err.Error())
 		}
 
-		component := views.Buscar(llmResponse.Response)
+		component := views.Buscar(llmResponse.Response, prompt)
 
 		return renderers.RenderNoLayout(c, http.StatusOK, component)
 	}

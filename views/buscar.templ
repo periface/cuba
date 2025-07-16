@@ -1,8 +1,11 @@
 package views
 
-templ Buscar(llmResponse string) {
+templ Buscar(llmResponse string, promptUsado string) {
 	<div class="card twelve columns" id="markdown">
 		{ llmResponse }
+	</div>
+	<div class="card twelve columns" id="markdown2">
+		{ promptUsado }
 	</div>
 }
 

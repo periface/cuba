@@ -7,6 +7,9 @@ const state = {
     getMarkDownContainer: () => {
         return document.getElementById("markdown");
     },
+    getMarkDown2Container: () => {
+        return document.getElementById("markdown2");
+    }
 }
 function initMd() {
     // Renderizar en el div
@@ -14,6 +17,11 @@ function initMd() {
     if (!container) return;
     const content = state.getMarkDownContainer().innerHTML;
     state.getMarkDownContainer().innerHTML = (marked.parse(content))
+
+    const container2 = state.getMarkDown2Container();
+    if (!container2) return;
+    const content2 = state.getMarkDown2Container().innerHTML;
+    state.getMarkDown2Container().innerHTML = (marked.parse(content2))
 }
 async function buscar(rfc) {
     try {
