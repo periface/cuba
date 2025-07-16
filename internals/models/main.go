@@ -9,6 +9,8 @@ type LLMResponse struct {
 	Prompt   string
 	Response string
 }
+
+
 type BuscarResponse struct {
 	ObservacionesSat        []map[string]string
 	ContratosEncontrados    []map[string]string

@@ -31,7 +31,7 @@ func main() {
 	handlers := handlers.NewMainHandler()
 	e.GET("/", mainHandler)
 	e.GET("/buscar", handlers.Proveedores.BuscarProveedor)
-	if err := e.Start(":1634"); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := e.Start(":1635"); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		slog.Error("failed to start server", "error", err)
 	}
 }
