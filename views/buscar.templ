@@ -1,16 +1,47 @@
 package views
 
 templ Buscar(llmResponse string, promptUsado string) {
-	<div class="card twelve columns" id="markdown">
-		{ llmResponse }
+	<div class="container">
+		<!-- RESULTADO PRINCIPAL -->
+		<div
+			class="card twelve columns"
+			id="markdown"
+			style="
+                        background: #111827;
+                        color: #e5e7eb;
+                        padding: 16px;
+                        border-radius: 10px;
+                        margin-bottom: 16px;
+                        white-space: pre-wrap;
+                        line-height: 1.5;
+                "
+		>
+			<h5 style="margin-top:0;">📊 Resultado del Análisis</h5>
+			<div>
+				{ llmResponse }
+			</div>
+		</div>
+		<!-- PROMPT (COLAPSABLE VISUALMENTE) -->
+		<div
+			class="card twelve columns"
+			id="markdown2"
+			style="
+                        background: #0f172a;
+                        color: #94a3b8;
+                        padding: 12px;
+                        border-radius: 10px;
+                        font-size: 12px;
+                        opacity: 0.9;
+                "
+		>
+			<details>
+				<summary style="cursor:pointer; font-weight:bold;">
+					🧠 Prompt utilizado (debug / auditoría)
+				</summary>
+				<pre style="white-space: pre-wrap;">
+					{ promptUsado }
+				</pre>
+			</details>
+		</div>
 	</div>
-	<div class="card twelve columns" id="markdown2">
-		{ promptUsado }
-	</div>
-}
-
-templ renderList(itemProps map[string]string) {
-	for clave, valor := range itemProps {
-		<li style="list-style: none; font-size: 1rem;"><strong>{ clave }:</strong> { valor }</li>
-	}
 }

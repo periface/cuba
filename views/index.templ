@@ -1,21 +1,44 @@
 package views
 
 templ Index(rfc string) {
-	<div class="loader" id="loader"></div>
+	<div class="loader" id="loader" style="display:none;"></div>
 	<div class="container">
-		<div class="row">
-			<div class="three columns">
-				<img src="static/img/logo.svg" width="50px" height="50px"/>
-				<h6>
-					Análisis de Proveedores
-				</h6>
+		<!-- HEADER -->
+		<div class="row" style="margin-top: 30px; margin-bottom: 20px;">
+			<div class="twelve columns" style="display:flex; align-items:center; gap:12px;">
+				<img src="static/img/logo.svg" width="48" height="48"/>
+				<div>
+					<h4 style="margin-bottom:0;">Análisis de Proveedores</h4>
+					<small style="color:#777;">Consulta de riesgo y cumplimiento</small>
+				</div>
 			</div>
 		</div>
-		<input type="hidden" id="rfc" value={ rfc }/>
-		<input type="search" placeholder="RFC" id="searchInput"/>
-		<button type="button" id="searchButton">Buscar</button>
-		<div id="responseBody" class="row"></div>
-		<script src="static/lib/marked.min.js"></script>
-		<script src="static/index/index.js"></script>
+		<!-- SEARCH CARD -->
+		<div class="row">
+			<div class="twelve columns" style="background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+				<label for="searchInput">RFC del proveedor</label>
+				<div style="display:flex; gap:10px;">
+					<input
+						type="search"
+						id="searchInput"
+						placeholder="Ej: ABC123456T1"
+						style="flex:1;"
+						value={ rfc }
+					/>
+					<button type="button" id="searchButton">
+						Buscar
+					</button>
+				</div>
+				<small style="color:#888;">
+					Ingresa el RFC para generar el análisis de integridad
+				</small>
+			</div>
+		</div>
+		<!-- RESULTS -->
+		<div class="row" style="margin-top:20px;">
+			<div id="responseBody" class="twelve columns"></div>
+		</div>
 	</div>
+	<script src="static/lib/marked.min.js"></script>
+	<script src="static/index/index.js"></script>
 }

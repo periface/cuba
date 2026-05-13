@@ -1,33 +1,40 @@
 package views
 
 templ Layout(title string, content templ.Component) {
-	<html lang="es" dir="ltr" itemscope itemtype="https://schema.org/WebPage" prefix="og:http://ogp.me/ns#">
+	<!DOCTYPE html>
+	<html lang="es">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>
-			<link rel="canonical" href="https://moderntemplate.site/"/>
-			<link rel="amphtml" href="https://moderntemplate.site/amp/index.html"/>
-			<link rel="icon" type="image/png" href="./img/icons/64x64.png"/>
-			<link rel="manifest" href="./manifest.json"/>
-			<!-- General -->
-			<meta name="application-name" content="HTML Template"/>
-			<meta name="author" content="Igor Agapov"/>
-			<meta name="description" content="Modern HTML Starter Template"/>
-			<meta name="keywords" content="modern, useful, html, html5, css, css3, javascript, js, template, boilerplate"/>
-			<meta name="referrer" content="strict-origin"/>
-			<meta itemprop="name" content="HTML Template"/>
-			<meta itemprop="description" content="Modern HTML Starter Template"/>
-			<meta itemprop="image" content="./img/icons/128x128.png"/>
-			<link rel="preload" href="static/css/normalice.css" as="style"/>
-			<link rel="stylesheet" href="static/css/normalice.css"/>
-			<link rel="stylesheet" href="static/css/skeleton.css"/>
-			<link rel="stylesheet" href="static/css/overrides.css"/>
+			<meta name="description" content="Sistema de análisis de proveedores y riesgo gubernamental"/>
+			<meta name="robots" content="index, follow"/>
+			<link rel="icon" href="/static/img/favicon.png"/>
+			<!-- CSS base -->
+			<link rel="stylesheet" href="/static/css/normalice.css"/>
+			<link rel="stylesheet" href="/static/css/skeleton.css"/>
+			<link rel="stylesheet" href="/static/css/overrides.css"/>
+			<!-- performance -->
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 		</head>
-		<body class="main-body">
-			<main>
-				@content
+		<body class="app-body">
+			<header class="app-header">
+				<div class="container">
+					<h1 class="app-title">Sistema de Análisis de Proveedores</h1>
+					<p class="app-subtitle">Riesgo, contratos y validación de integridad</p>
+				</div>
+			</header>
+			<main class="app-main container">
+				<section class="content-card">
+					@content
+				</section>
 			</main>
+			<footer class="app-footer">
+				<div class="container">
+					<span>© Sistema interno de análisis</span>
+				</div>
+			</footer>
 		</body>
 	</html>
 }
