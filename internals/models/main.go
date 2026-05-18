@@ -14,6 +14,15 @@ type LLMResponse struct {
 	Response string
 }
 
+type BuscarViewModel struct {
+	Data              BuscarResponse  `json:"Data"`
+	Prompt            string          `json:"Prompt"`
+	SearchEngine      SearxngResponse `json:"SearchEngine"`
+	SearchEngineClean SearxngResponse `json:"SearchEngineClean"`
+	QueryClean        string          `json:"QueryClean"`
+	QueryRiesgo       string          `json:"QueryRiesgo"`
+}
+
 type BuscarResponse struct {
 	ObservacionesSat        []map[string]string
 	ContratosEncontrados    []map[string]string

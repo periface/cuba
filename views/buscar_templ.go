@@ -13,7 +13,7 @@ import (
 	"github.com/periface/cuba/internals/models"
 )
 
-func Buscar(data models.BuscarResponse, prompt string, searchEngine models.SearxngResponse, searchEngineClean models.SearxngResponse) templ.Component {
+func Buscar(viewModel models.BuscarViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -38,23 +38,23 @@ func Buscar(data models.BuscarResponse, prompt string, searchEngine models.Searx
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = renderSection("Proveedor", data.InformacionDelProveedor).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = renderSection("Proveedor", viewModel.Data.InformacionDelProveedor).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = renderSection("Representantes", data.RepresentantesLegales).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = renderSection("Representantes", viewModel.Data.RepresentantesLegales).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = renderSection("Observaciones SAT", data.ObservacionesSat).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = renderSection("Observaciones SAT", viewModel.Data.ObservacionesSat).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = renderSection("Contratos", data.ContratosEncontrados).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = renderSection("Contratos", viewModel.Data.ContratosEncontrados).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = renderSection("Empleados", data.EmpleadosEncontrados).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = renderSection("Empleados", viewModel.Data.EmpleadosEncontrados).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -62,7 +62,7 @@ func Buscar(data models.BuscarResponse, prompt string, searchEngine models.Searx
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, r := range searchEngine.Results {
+		for _, r := range viewModel.SearchEngine.Results {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"padding:10px; border-bottom:1px solid #333;\"><div style=\"font-weight:bold; color:#60a5fa;\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -137,7 +137,7 @@ func Buscar(data models.BuscarResponse, prompt string, searchEngine models.Searx
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, r := range searchEngineClean.Results {
+		for _, r := range viewModel.SearchEngineClean.Results {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"padding:10px; border-bottom:1px solid #333;\"><div style=\"font-weight:bold; color:#60a5fa;\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -216,7 +216,7 @@ func Buscar(data models.BuscarResponse, prompt string, searchEngine models.Searx
 	})
 }
 
-func renderSection(title string, data []map[string]string) templ.Component {
+func renderSection(title string, Data []map[string]string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -237,7 +237,7 @@ func renderSection(title string, data []map[string]string) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if len(data) > 0 {
+		if len(Data) > 0 {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><th colspan=\"2\" style=\"text-align:left; padding-top:12px; color:#60a5fa;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -255,7 +255,7 @@ func renderSection(title string, data []map[string]string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, item := range data {
+			for _, item := range Data {
 				for k, v := range item {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<tr><td style=\"padding:4px 8px; color:#94a3b8; width: 30%; vertical-align: top;\">")
 					if templ_7745c5c3_Err != nil {

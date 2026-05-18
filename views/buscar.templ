@@ -5,21 +5,21 @@ import (
 	"github.com/periface/cuba/internals/models"
 )
 
-templ Buscar(data models.BuscarResponse, prompt string, searchEngine models.SearxngResponse, searchEngineClean models.SearxngResponse) {
+templ Buscar(viewModel models.BuscarViewModel) {
 	<div class="results-wrapper animation-fade-in">
 		<div class="content-card" style="margin-bottom: 20px;">
 			<h5>📦 Resumen de hallazgos</h5>
 			<table style="width:100%; border-collapse: collapse;">
-				@renderSection("Proveedor", data.InformacionDelProveedor)
-				@renderSection("Representantes", data.RepresentantesLegales)
-				@renderSection("Observaciones SAT", data.ObservacionesSat)
-				@renderSection("Contratos", data.ContratosEncontrados)
-				@renderSection("Empleados", data.EmpleadosEncontrados)
+				@renderSection("Proveedor", viewModel.Data.InformacionDelProveedor)
+				@renderSection("Representantes", viewModel.Data.RepresentantesLegales)
+				@renderSection("Observaciones SAT", viewModel.Data.ObservacionesSat)
+				@renderSection("Contratos", viewModel.Data.ContratosEncontrados)
+				@renderSection("Empleados", viewModel.Data.EmpleadosEncontrados)
 			</table>
 		</div>
 		<div class="content-card" style="margin-bottom: 20px">
 			<h5>🌐 Resultados de búsqueda - PROVEEDOR RAZON SOCIAL</h5>
-			for _, r := range searchEngine.Results {
+			for _, r := range viewModel.SearchEngine.Results {
 				<div style="padding:10px; border-bottom:1px solid #333;">
 					<div style="font-weight:bold; color:#60a5fa;">
 						<a href={ templ.SafeURL(r.URL) } target="_blank">{ r.Title }</a>
@@ -35,7 +35,7 @@ templ Buscar(data models.BuscarResponse, prompt string, searchEngine models.Sear
 		</div>
 		<div class="content-card">
 			<h5>🌐 Resultados de búsqueda - ANALISIS POR TEMAS</h5>
-			for _, r := range searchEngineClean.Results {
+			for _, r := range viewModel.SearchEngineClean.Results {
 				<div style="padding:10px; border-bottom:1px solid #333;">
 					<div style="font-weight:bold; color:#60a5fa;">
 						<a href={ templ.SafeURL(r.URL) } target="_blank">{ r.Title }</a>
@@ -52,12 +52,12 @@ templ Buscar(data models.BuscarResponse, prompt string, searchEngine models.Sear
 	</div>
 }
 
-templ renderSection(title string, data []map[string]string) {
-	if len(data) > 0 {
+templ renderSection(title string, Data []map[string]string) {
+	if len(Data) > 0 {
 		<tr>
 			<th colspan="2" style="text-align:left; padding-top:12px; color:#60a5fa;">{ title }</th>
 		</tr>
-		for _, item := range data {
+		for _, item := range Data {
 			for k, v := range item {
 				<tr>
 					<td style="padding:4px 8px; color:#94a3b8; width: 30%; vertical-align: top;">{ k }</td>

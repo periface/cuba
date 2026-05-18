@@ -41,7 +41,13 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	rfc := c.QueryParam("rfc")
 
 	if rfc == "" {
-		return h.renderSuccess(c, models.BuscarResponse{}, "Error, no RFC", models.SearxngResponse{}, models.SearxngResponse{})
+		return h.renderSuccess(c, models.BuscarResponse{},
+			"Error, no RFC",
+			models.SearxngResponse{},
+			models.SearxngResponse{},
+			"",
+			"",
+		)
 	}
 
 	// --------------------------------------------
@@ -116,6 +122,8 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		basePrompt,
 		responseLimpia,
 		responseRiesgo,
+		queryLimpio,
+		queryRiesgo,
 	)
 }
 
@@ -231,49 +239,24 @@ func buildCleanSearchQuery(rfc string, data models.BuscarResponse) string {
 	return strings.Join(identities, " OR ")
 }
 
-// mezclarResultados combina las respuestas de ambas búsquedas impidiendo duplicidad de URLs.
-func mezclarResultados(riesgo, limpia models.SearxngResponse) models.SearxngResponse {
-	urlsVistas := make(map[string]bool)
-	var resultadosFinales []models.Result // Asegúrate que este tipo coincida con tu struct real de resultados
-
-	// 1. Prioridad total a las alertas de riesgo encontradas
-	for _, res := range riesgo.Results {
-		if !urlsVistas[res.URL] {
-			urlsVistas[res.URL] = true
-			resultadosFinales = append(resultadosFinales, res)
-		}
-	}
-
-	// 2. Añadir notas de prensa de la búsqueda limpia si no existían ya
-	for _, res := range limpia.Results {
-		if !urlsVistas[res.URL] {
-			urlsVistas[res.URL] = true
-			resultadosFinales = append(resultadosFinales, res)
-		}
-	}
-
-	finalResponse := riesgo
-	finalResponse.Results = resultadosFinales
-
-	if len(riesgo.Results) == 0 {
-		finalResponse.Query = limpia.Query
-	}
-
-	return finalResponse
-}
-
 func (h *ProveedoresHandlers) renderSuccess(
 	c echo.Context,
 	data models.BuscarResponse,
 	prompt string,
-	searchResponseLimpia models.SearxngResponse,
-	searchResponse models.SearxngResponse,
+	searchEngine models.SearxngResponse,
+	searchEngineClean models.SearxngResponse,
+	queryClean string,
+	queryRiesgo string,
 ) error {
 	component := views.Buscar(
-		data,
-		prompt,
-		searchResponseLimpia,
-		searchResponse,
+		models.BuscarViewModel{
+			Data:              data,
+			Prompt:            prompt,
+			SearchEngine:      searchEngine,
+			SearchEngineClean: searchEngineClean,
+			QueryClean:        queryClean,
+			QueryRiesgo:       queryRiesgo,
+		},
 	)
 
 	return renderers.RenderNoLayout(
@@ -289,10 +272,7 @@ func (h *ProveedoresHandlers) renderError(
 	_ string,
 ) error {
 	component := views.Buscar(
-		models.BuscarResponse{},
-		"",
-		models.SearxngResponse{},
-		models.SearxngResponse{},
+		models.BuscarViewModel{},
 	)
 	return renderers.RenderNoLayout(
 		c,
