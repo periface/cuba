@@ -8,7 +8,7 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Layout(title string, content templ.Component) templ.Component {
+func disclaimer() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,20 +29,49 @@ func Layout(title string, content templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"es\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"disclaimer-container\"><button type=\"button\" class=\"disclaimer-trigger\" onclick=\"document.getElementById('disclaimer-content').classList.toggle('is-visible')\">Ver Aviso Legal y Deslinde de Responsabilidad</button><div id=\"disclaimer-content\" class=\"disclaimer-text\"><p><strong>Aviso:</strong> Este reporte fue generado mediante una herramienta digital de apoyo que recopila y organiza información pública, institucional y documental relacionada con proveedores del Gobierno del Estado de Tamaulipas. Su contenido tiene carácter informativo y preventivo, por lo que no constituye una resolución administrativa, dictamen jurídico, sanción, inhabilitación ni determinación definitiva sobre el proveedor analizado.</p><p>Los hallazgos, clasificaciones de riesgo y recomendaciones deberán ser verificados por las áreas competentes antes de tomar cualquier decisión administrativa o contractual. La herramienta no sustituye la revisión jurídica, fiscal, técnica o documental correspondiente, ni elimina la obligación de consultar fuentes oficiales vigentes y respetar el derecho de audiencia del proveedor.</p><p>Las recomendaciones emitidas deben entenderse como alertas preliminares de riesgo y no como decisiones automáticas de aceptación, rechazo o exclusión.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 9, Col: 17}
+		return nil
+	})
+}
+
+func Layout(title string, content templ.Component) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var2 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var2 == nil {
+			templ_7745c5c3_Var2 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<!doctype html><html lang=\"es\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta name=\"description\" content=\"Sistema de análisis de proveedores y riesgo gubernamental\"><meta name=\"robots\" content=\"index, follow\"><link rel=\"icon\" href=\"/static/img/favicon.png\"><!-- CSS base --><link rel=\"stylesheet\" href=\"/static/css/normalice.css\"><link rel=\"stylesheet\" href=\"/static/css/skeleton.css\"><link rel=\"stylesheet\" href=\"/static/css/overrides.css\"><!-- performance --><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin></head><body class=\"app-body\"><header class=\"app-header\"><div class=\"container\"><h1 class=\"app-title\">Sistema de Análisis de Proveedores</h1><p class=\"app-subtitle\">Riesgo, contratos y validación de integridad</p></div></header><main class=\"app-main container\"><section class=\"content-card\">")
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 32, Col: 17}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</title><meta name=\"description\" content=\"Sistema de análisis de proveedores y riesgo gubernamental\"><link rel=\"stylesheet\" href=\"/static/css/normalice.css\"><link rel=\"stylesheet\" href=\"/static/css/skeleton.css\"><link rel=\"stylesheet\" href=\"/static/css/overrides.css\"><style>\n                .disclaimer-container { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }\n                .disclaimer-trigger {\n                    background: none; border: none; color: #666;\n                    text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 0;\n                }\n                .disclaimer-text {\n                    display: none; font-size: 0.75rem; color: #555;\n                    text-align: justify; margin-top: 15px; line-height: 1.4;\n                }\n                .disclaimer-text.is-visible { display: block; }\n            </style></head><body class=\"app-body\"><header class=\"app-header\"><div class=\"container\"><h1 class=\"app-title\">Sistema de Análisis de Proveedores</h1><p class=\"app-subtitle\">Riesgo, contratos y validación de integridad</p></div></header><main class=\"app-main container\"><section class=\"content-card\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +79,15 @@ func Layout(title string, content templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section></main><footer class=\"app-footer\"><div class=\"container\"><span>© Sistema interno de análisis</span></div></footer></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</section></main><footer class=\"app-footer\"><div class=\"container\"><span>© Sistema interno de análisis - Tamaulipas</span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = disclaimer().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></footer></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

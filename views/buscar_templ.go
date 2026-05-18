@@ -29,27 +29,27 @@ func Buscar(llmResponse string, promptUsado string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"container\"><!-- RESULTADO PRINCIPAL --><div class=\"card twelve columns\" id=\"markdown\" style=\"\n                        background: #111827;\n                        color: #e5e7eb;\n                        padding: 16px;\n                        border-radius: 10px;\n                        margin-bottom: 16px;\n                        white-space: pre-wrap;\n                        line-height: 1.5;\n                \"><h5 style=\"margin-top:0;\">📊 Resultado del Análisis</h5><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"results-wrapper animation-fade-in\"><div class=\"content-card\" id=\"markdown\" style=\"margin-bottom: 20px; border-left: 4px solid #3b82f6;\"><h5 style=\"margin-top:0; color: #60a5fa; display: flex; align-items: center; gap: 8px;\"><span>📊</span> Resultado del Análisis</h5><div style=\"white-space: pre-wrap; color: #e2e8f0; font-size: 15px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(llmResponse)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 21, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 10, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div><!-- PROMPT (COLAPSABLE VISUALMENTE) --><div class=\"card twelve columns\" id=\"markdown2\" style=\"\n                        background: #0f172a;\n                        color: #94a3b8;\n                        padding: 12px;\n                        border-radius: 10px;\n                        font-size: 12px;\n                        opacity: 0.9;\n                \"><details><summary style=\"cursor:pointer; font-weight:bold;\">🧠 Prompt utilizado (debug / auditoría)</summary><pre style=\"white-space: pre-wrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div><div style=\"background: #0f172a; border-radius: 8px; border: 1px dashed #334155;\"><details style=\"padding: 12px;\"><summary style=\"cursor:pointer; font-weight:bold; color: #64748b; font-size: 12px;\">🧠 Auditoría Técnica: Prompt e Instrucciones</summary><pre style=\"white-space: pre-wrap; background: #020617; padding: 15px; border-radius: 4px; font-size: 11px; color: #475569; margin-top: 10px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(promptUsado)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 42, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 19, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

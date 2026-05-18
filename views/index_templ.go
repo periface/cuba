@@ -29,7 +29,7 @@ func Index(rfc string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"loader\" id=\"loader\" style=\"display:none;\"></div><div class=\"container\"><!-- HEADER --><div class=\"row\" style=\"margin-top: 30px; margin-bottom: 20px;\"><div class=\"twelve columns\" style=\"display:flex; align-items:center; gap:12px;\"><img src=\"static/img/logo.svg\" width=\"48\" height=\"48\"><div><h4 style=\"margin-bottom:0;\">Análisis de Proveedores</h4><small style=\"color:#777;\">Consulta de riesgo y cumplimiento</small></div></div></div><!-- SEARCH CARD --><div class=\"row\"><div class=\"twelve columns\" style=\"background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.05);\"><label for=\"searchInput\">RFC del proveedor</label><div style=\"display:flex; gap:10px;\"><input type=\"search\" id=\"searchInput\" placeholder=\"Ej: ABC123456T1\" style=\"flex:1;\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"loader-overlay\" id=\"loader\"><div class=\"loader\"></div></div><div class=\"container\"><header class=\"row\" style=\"margin-top: 40px; margin-bottom: 30px;\"><div class=\"twelve columns\" style=\"display:flex; align-items:center; gap:16px;\"><img src=\"/static/img/logo.png\" width=\"56\" height=\"56\" style=\"filter: brightness(0) invert(1);\"><div><h3 style=\"margin-bottom:0; color: #f8fafc;\">Análisis de Proveedores</h3><span style=\"color:#94a3b8; font-size: 14px;\">Consulta de riesgo y cumplimiento gubernamental</span></div></div></header><div class=\"row\"><div class=\"twelve columns content-card\"><label for=\"searchInput\" style=\"color: #cbd5e1;\">RFC del proveedor</label><div style=\"display:flex; gap:12px; margin-top: 8px;\"><input type=\"search\" id=\"searchInput\" placeholder=\"Ej: ABC123456T1\" style=\"flex:1; margin-bottom: 0;\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -42,7 +42,7 @@ func Index(rfc string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"> <button type=\"button\" id=\"searchButton\">Buscar</button></div><small style=\"color:#888;\">Ingresa el RFC para generar el análisis de integridad</small></div></div><!-- RESULTS --><div class=\"row\" style=\"margin-top:20px;\"><div id=\"responseBody\" class=\"twelve columns\"></div></div></div><script src=\"static/lib/marked.min.js\"></script><script src=\"static/index/index.js\"></script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"> <button type=\"button\" id=\"searchButton\">Buscar</button></div><p style=\"color:#64748b; font-size: 12px; margin-top: 12px; margin-bottom: 0;\"><i class=\"icon-info\"></i> Ingresa el RFC para generar el análisis de integridad documental.</p></div></div><div class=\"row\" style=\"margin-top:30px;\"><div id=\"responseBody\" class=\"twelve columns\"></div></div></div><script src=\"/static/lib/marked.min.js\"></script><script src=\"/static/index/index.js\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

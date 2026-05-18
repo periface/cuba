@@ -1,5 +1,28 @@
 package views
 
+templ disclaimer() {
+	<div class="disclaimer-container">
+		<button
+			type="button"
+			class="disclaimer-trigger"
+			onclick="document.getElementById('disclaimer-content').classList.toggle('is-visible')"
+		>
+			Ver Aviso Legal y Deslinde de Responsabilidad
+		</button>
+		<div id="disclaimer-content" class="disclaimer-text">
+			<p>
+				<strong>Aviso:</strong> Este reporte fue generado mediante una herramienta digital de apoyo que recopila y organiza información pública, institucional y documental relacionada con proveedores del Gobierno del Estado de Tamaulipas. Su contenido tiene carácter informativo y preventivo, por lo que no constituye una resolución administrativa, dictamen jurídico, sanción, inhabilitación ni determinación definitiva sobre el proveedor analizado.
+			</p>
+			<p>
+				Los hallazgos, clasificaciones de riesgo y recomendaciones deberán ser verificados por las áreas competentes antes de tomar cualquier decisión administrativa o contractual. La herramienta no sustituye la revisión jurídica, fiscal, técnica o documental correspondiente, ni elimina la obligación de consultar fuentes oficiales vigentes y respetar el derecho de audiencia del proveedor.
+			</p>
+			<p>
+				Las recomendaciones emitidas deben entenderse como alertas preliminares de riesgo y no como decisiones automáticas de aceptación, rechazo o exclusión.
+			</p>
+		</div>
+	</div>
+}
+
 templ Layout(title string, content templ.Component) {
 	<!DOCTYPE html>
 	<html lang="es">
@@ -8,15 +31,21 @@ templ Layout(title string, content templ.Component) {
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>
 			<meta name="description" content="Sistema de análisis de proveedores y riesgo gubernamental"/>
-			<meta name="robots" content="index, follow"/>
-			<link rel="icon" href="/static/img/favicon.png"/>
-			<!-- CSS base -->
 			<link rel="stylesheet" href="/static/css/normalice.css"/>
 			<link rel="stylesheet" href="/static/css/skeleton.css"/>
 			<link rel="stylesheet" href="/static/css/overrides.css"/>
-			<!-- performance -->
-			<link rel="preconnect" href="https://fonts.googleapis.com"/>
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<style>
+                .disclaimer-container { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+                .disclaimer-trigger {
+                    background: none; border: none; color: #666;
+                    text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 0;
+                }
+                .disclaimer-text {
+                    display: none; font-size: 0.75rem; color: #555;
+                    text-align: justify; margin-top: 15px; line-height: 1.4;
+                }
+                .disclaimer-text.is-visible { display: block; }
+            </style>
 		</head>
 		<body class="app-body">
 			<header class="app-header">
@@ -32,7 +61,8 @@ templ Layout(title string, content templ.Component) {
 			</main>
 			<footer class="app-footer">
 				<div class="container">
-					<span>© Sistema interno de análisis</span>
+					<span>© Sistema interno de análisis - Tamaulipas</span>
+					@disclaimer()
 				</div>
 			</footer>
 		</body>
