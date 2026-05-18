@@ -1,24 +1,69 @@
 package views
 
-templ Buscar(llmResponse string, promptUsado string) {
+import (
+	"fmt"
+	"github.com/periface/cuba/internals/models"
+)
+
+templ Buscar(data models.BuscarResponse, prompt string, searchEngine models.SearxngResponse, searchEngineClean models.SearxngResponse) {
 	<div class="results-wrapper animation-fade-in">
-		<div class="content-card" id="markdown" style="margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-			<h5 style="margin-top:0; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
-				<span>📊</span> Resultado del Análisis
-			</h5>
-			<div style="white-space: pre-wrap; color: #e2e8f0; font-size: 15px;">
-				{ llmResponse }
-			</div>
+		<div class="content-card" style="margin-bottom: 20px;">
+			<h5>📦 Resumen de hallazgos</h5>
+			<table style="width:100%; border-collapse: collapse;">
+				@renderSection("Proveedor", data.InformacionDelProveedor)
+				@renderSection("Representantes", data.RepresentantesLegales)
+				@renderSection("Observaciones SAT", data.ObservacionesSat)
+				@renderSection("Contratos", data.ContratosEncontrados)
+				@renderSection("Empleados", data.EmpleadosEncontrados)
+			</table>
 		</div>
-		<div style="background: #0f172a; border-radius: 8px; border: 1px dashed #334155;">
-			<details style="padding: 12px;">
-				<summary style="cursor:pointer; font-weight:bold; color: #64748b; font-size: 12px;">
-					🧠 Auditoría Técnica: Prompt e Instrucciones
-				</summary>
-				<pre style="white-space: pre-wrap; background: #020617; padding: 15px; border-radius: 4px; font-size: 11px; color: #475569; margin-top: 10px;">
-					{ promptUsado }
-				</pre>
-			</details>
+		<div class="content-card" style="margin-bottom: 20px">
+			<h5>🌐 Resultados de búsqueda - PROVEEDOR RAZON SOCIAL</h5>
+			for _, r := range searchEngine.Results {
+				<div style="padding:10px; border-bottom:1px solid #333;">
+					<div style="font-weight:bold; color:#60a5fa;">
+						<a href={ templ.SafeURL(r.URL) } target="_blank">{ r.Title }</a>
+					</div>
+					<div style="font-size:13px; opacity:0.8;">
+						{ r.Content }
+					</div>
+					<div style="font-size:11px; opacity:0.6;">
+						{ r.Engine } · score: { fmt.Sprintf("%.2f", r.Score) }
+					</div>
+				</div>
+			}
+		</div>
+		<div class="content-card">
+			<h5>🌐 Resultados de búsqueda - ANALISIS POR TEMAS</h5>
+			for _, r := range searchEngineClean.Results {
+				<div style="padding:10px; border-bottom:1px solid #333;">
+					<div style="font-weight:bold; color:#60a5fa;">
+						<a href={ templ.SafeURL(r.URL) } target="_blank">{ r.Title }</a>
+					</div>
+					<div style="font-size:13px; opacity:0.8;">
+						{ r.Content }
+					</div>
+					<div style="font-size:11px; opacity:0.6;">
+						{ r.Engine } · score: { fmt.Sprintf("%.2f", r.Score) }
+					</div>
+				</div>
+			}
 		</div>
 	</div>
+}
+
+templ renderSection(title string, data []map[string]string) {
+	if len(data) > 0 {
+		<tr>
+			<th colspan="2" style="text-align:left; padding-top:12px; color:#60a5fa;">{ title }</th>
+		</tr>
+		for _, item := range data {
+			for k, v := range item {
+				<tr>
+					<td style="padding:4px 8px; color:#94a3b8; width: 30%; vertical-align: top;">{ k }</td>
+					<td style="padding:4px 8px; vertical-align: top;">{ v }</td>
+				</tr>
+			}
+		}
+	}
 }

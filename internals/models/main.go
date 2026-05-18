@@ -1,5 +1,9 @@
 package models
 
+type KeyValue struct {
+	Key   string
+	Value string
+}
 type AppSheetsPayload struct {
 	Action     string              `json:"Action"`
 	Properties map[string]string   `json:"Properties"`
@@ -9,7 +13,6 @@ type LLMResponse struct {
 	Prompt   string
 	Response string
 }
-
 
 type BuscarResponse struct {
 	ObservacionesSat        []map[string]string
@@ -74,4 +77,87 @@ type CondonacionSAT struct {
 	Clasificacion                                   string `json:"clasificacion"`
 
 	ClasificacionDescription string `json:"clasificacionDescription"`
+}
+
+type SearxngResponse struct {
+	Query               string        `json:"query"`
+	NumberOfResults     int           `json:"number_of_results"`
+	Results             []Result      `json:"results"`
+	Answers             []Answer      `json:"answers"`
+	Corrections         []interface{} `json:"corrections"`
+	Infoboxes           []Infobox     `json:"infoboxes"`
+	Suggestions         []interface{} `json:"suggestions"`
+	UnresponsiveEngines [][]string    `json:"unresponsive_engines"`
+}
+
+type Result struct {
+	URL           string   `json:"url"`
+	Title         string   `json:"title"`
+	Content       string   `json:"content"`
+	Thumbnail     *string  `json:"thumbnail"`
+	Engine        string   `json:"engine"`
+	Template      string   `json:"template"`
+	ParsedURL     []string `json:"parsed_url"`
+	ImgSrc        string   `json:"img_src"`
+	Priority      string   `json:"priority"`
+	Engines       []string `json:"engines"`
+	Positions     []int    `json:"positions"`
+	Score         float64  `json:"score"`
+	Category      string   `json:"category"`
+	PublishedDate *string  `json:"publishedDate"`
+
+	// Campos opcionales
+	IframeSrc *string `json:"iframe_src,omitempty"`
+	AudioSrc  *string `json:"audio_src,omitempty"`
+	Pubdate   *string `json:"pubdate,omitempty"`
+	Length    *int    `json:"length,omitempty"`
+	Views     *string `json:"views,omitempty"`
+	Author    *string `json:"author,omitempty"`
+	Metadata  *string `json:"metadata,omitempty"`
+
+	OpenGroup  *bool `json:"open_group,omitempty"`
+	CloseGroup *bool `json:"close_group,omitempty"`
+}
+
+type Answer struct {
+	URL       string   `json:"url"`
+	Engine    string   `json:"engine"`
+	ParsedURL []string `json:"parsed_url"`
+	Template  string   `json:"template"`
+	Answer    string   `json:"answer"`
+}
+
+type Infobox struct {
+	Infobox    string             `json:"infobox"`
+	ID         string             `json:"id"`
+	Content    string             `json:"content"`
+	ImgSrc     *string            `json:"img_src"`
+	URLs       []InfoboxURL       `json:"urls"`
+	Attributes []InfoboxAttribute `json:"attributes"`
+
+	Engine    string      `json:"engine"`
+	URL       *string     `json:"url"`
+	Template  string      `json:"template"`
+	ParsedURL interface{} `json:"parsed_url"`
+
+	Title         string      `json:"title"`
+	Thumbnail     string      `json:"thumbnail"`
+	Priority      string      `json:"priority"`
+	Engines       []string    `json:"engines"`
+	Positions     interface{} `json:"positions"`
+	Score         float64     `json:"score"`
+	Category      string      `json:"category"`
+	PublishedDate *string     `json:"publishedDate"`
+}
+
+type InfoboxURL struct {
+	Title    string `json:"title"`
+	URL      string `json:"url"`
+	Official bool   `json:"official,omitempty"`
+}
+
+type InfoboxAttribute struct {
+	Label  string `json:"label"`
+	Value  string `json:"value"`
+	Entity string `json:"entity"`
 }

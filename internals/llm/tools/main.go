@@ -118,4 +118,3 @@ func (t *SerpAPISearchTool) Call(ctx context.Context, input string) (string, err
 
 	return sb.String(), nil
 }
-
