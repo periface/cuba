@@ -15,20 +15,24 @@ type LLMResponse struct {
 }
 
 type BuscarViewModel struct {
-	Data              BuscarResponse  `json:"Data"`
-	Prompt            string          `json:"Prompt"`
-	SearchEngine      SearxngResponse `json:"SearchEngine"`
-	SearchEngineClean SearxngResponse `json:"SearchEngineClean"`
-	QueryClean        string          `json:"QueryClean"`
-	QueryRiesgo       string          `json:"QueryRiesgo"`
+	Data        BuscarResponse `json:"Data"`
+	Prompt      string         `json:"Prompt"`
+	QueryClean  string         `json:"QueryClean"`
+	QueryRiesgo string         `json:"QueryRiesgo"`
+}
+
+type InternalSearchResult struct {
+	Values          map[string]string
+	SearxngResponse SearxngResponse
 }
 
 type BuscarResponse struct {
-	ObservacionesSat        []map[string]string
-	ContratosEncontrados    []map[string]string
-	EmpleadosEncontrados    []map[string]string
-	InformacionDelProveedor []map[string]string
-	RepresentantesLegales   []map[string]string
+	ObservacionesSat        []InternalSearchResult
+	ContratosEncontrados    []InternalSearchResult
+	EmpleadosEncontrados    []InternalSearchResult
+	InformacionDelProveedor []InternalSearchResult
+	RepresentantesLegales   []InternalSearchResult
+	Socios                  []InternalSearchResult
 	AnalisisPreventivo      string
 }
 type CondonacionSAT struct {

@@ -29,7 +29,7 @@ func disclaimer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"disclaimer-container\"><button type=\"button\" class=\"disclaimer-trigger\" onclick=\"document.getElementById('disclaimer-content').classList.toggle('is-visible')\">Ver Aviso Legal y Deslinde de Responsabilidad</button><div id=\"disclaimer-content\" class=\"disclaimer-text\"><p><strong>Aviso:</strong> Este reporte fue generado mediante una herramienta digital de apoyo que recopila y organiza información pública, institucional y documental relacionada con proveedores del Gobierno del Estado de Tamaulipas. Su contenido tiene carácter informativo y preventivo, por lo que no constituye una resolución administrativa, dictamen jurídico, sanción, inhabilitación ni determinación definitiva sobre el proveedor analizado.</p><p>Los hallazgos, clasificaciones de riesgo y recomendaciones deberán ser verificados por las áreas competentes antes de tomar cualquier decisión administrativa o contractual. La herramienta no sustituye la revisión jurídica, fiscal, técnica o documental correspondiente, ni elimina la obligación de consultar fuentes oficiales vigentes y respetar el derecho de audiencia del proveedor.</p><p>Las recomendaciones emitidas deben entenderse como alertas preliminares de riesgo y no como decisiones automáticas de aceptación, rechazo o exclusión.</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"disclaimer-container\"><button type=\"button\" class=\"disclaimer-trigger\" onclick=\"document.getElementById('disclaimer-content').classList.toggle('is-visible')\">⚖️ Ver Aviso Legal y Deslinde de Responsabilidad</button><div id=\"disclaimer-content\" class=\"disclaimer-text\"><p><strong>Aviso:</strong> Este reporte fue generado mediante una herramienta digital de apoyo que recopila y organiza información pública, institucional y documental relacionada con proveedores del Gobierno del Estado de Tamaulipas. Su contenido tiene carácter informativo y preventivo, por lo que no constituye una resolución administrativa, dictamen jurídico o determinación definitiva.</p><p>Los hallazgos y clasificaciones de riesgo deberán ser verificados por las áreas competentes antes de tomar cualquier decisión contractual. La herramienta no sustituye la revisión oficial correspondiente.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -65,13 +65,13 @@ func Layout(title string, content templ.Component) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 32, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 29, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</title><meta name=\"description\" content=\"Sistema de análisis de proveedores y riesgo gubernamental\"><link rel=\"stylesheet\" href=\"/static/css/normalice.css\"><link rel=\"stylesheet\" href=\"/static/css/skeleton.css\"><link rel=\"stylesheet\" href=\"/static/css/overrides.css\"><style>\n                .disclaimer-container { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }\n                .disclaimer-trigger {\n                    background: none; border: none; color: #666;\n                    text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 0;\n                }\n                .disclaimer-text {\n                    display: none; font-size: 0.75rem; color: #555;\n                    text-align: justify; margin-top: 15px; line-height: 1.4;\n                }\n                .disclaimer-text.is-visible { display: block; }\n            </style></head><body class=\"app-body\"><header class=\"app-header\"><div class=\"container\"><h1 class=\"app-title\">Sistema de Análisis de Proveedores</h1><p class=\"app-subtitle\">Riesgo, contratos y validación de integridad</p></div></header><main class=\"app-main container\"><section class=\"content-card\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</title><link rel=\"stylesheet\" href=\"/static/css/normalice.css\"><link rel=\"stylesheet\" href=\"/static/css/skeleton.css\"><link rel=\"stylesheet\" href=\"/static/css/overrides.css\"><style>\n\t\t\t\tbody { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }\n\t\t\t\t.app-container { max-width: 1440px; margin: 0 auto; padding: 0 24px; }\n\t\t\t\t.app-footer { margin-top: 60px; padding: 24px 0; border-top: 1px solid #1e293b; color: #64748b; font-size: 13px; }\n\t\t\t\t.disclaimer-container { margin-top: 16px; }\n\t\t\t\t.disclaimer-trigger {\n\t\t\t\t\tbackground: none; border: none; color: #94a3b8;\n\t\t\t\t\ttext-decoration: underline; cursor: pointer; font-size: 13px; padding: 0;\n\t\t\t\t}\n\t\t\t\t.disclaimer-trigger:hover { color: #f8fafc; }\n\t\t\t\t.disclaimer-text {\n\t\t\t\t\tdisplay: none; font-size: 12px; color: #94a3b8;\n\t\t\t\t\ttext-align: justify; margin-top: 12px; line-height: 1.5;\n\t\t\t\t\tbackground: #1e293b; padding: 16px; border-radius: 8px; border: 1px solid #334155;\n\t\t\t\t}\n\t\t\t\t.disclaimer-text.is-visible { display: block; }\n\t\t\t</style></head><body><main class=\"app-main\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -79,7 +79,7 @@ func Layout(title string, content templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</section></main><footer class=\"app-footer\"><div class=\"container\"><span>© Sistema interno de análisis - Tamaulipas</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</main><footer class=\"app-footer\"><div class=\"app-container\"><span>© 2026 Sistema Interno de Análisis de Integridad Gubernamental — Estado de Tamaulipas</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

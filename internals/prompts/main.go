@@ -10,15 +10,15 @@ import (
 type PromptContext struct {
 	RFC string `json:"rfc"`
 
-	InformacionProveedor []map[string]string `json:"informacion_proveedor"`
+	InformacionProveedor []models.InternalSearchResult `json:"informacion_proveedor"`
 
-	RepresentantesLegales []map[string]string `json:"representantes_legales"`
+	RepresentantesLegales []models.InternalSearchResult `json:"representantes_legales"`
 
-	Contratos []map[string]string `json:"contratos"`
+	Contratos []models.InternalSearchResult `json:"contratos"`
 
-	EmpleadosCoincidentes []map[string]string `json:"empleados_coincidentes"`
+	EmpleadosCoincidentes []models.InternalSearchResult `json:"empleados_coincidentes"`
 
-	ObservacionesSAT []map[string]string `json:"observaciones_sat"`
+	ObservacionesSAT []models.InternalSearchResult `json:"observaciones_sat"`
 }
 
 func toPrettyJSON(v any) string {

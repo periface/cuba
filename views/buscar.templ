@@ -6,64 +6,112 @@ import (
 )
 
 templ Buscar(viewModel models.BuscarViewModel) {
-	<div class="results-wrapper animation-fade-in">
-		<div class="content-card" style="margin-bottom: 20px;">
-			<h5>📦 Resumen de hallazgos</h5>
-			<table style="width:100%; border-collapse: collapse;">
-				@renderSection("Proveedor", viewModel.Data.InformacionDelProveedor)
-				@renderSection("Representantes", viewModel.Data.RepresentantesLegales)
-				@renderSection("Observaciones SAT", viewModel.Data.ObservacionesSat)
-				@renderSection("Contratos", viewModel.Data.ContratosEncontrados)
-				@renderSection("Empleados", viewModel.Data.EmpleadosEncontrados)
-			</table>
-		</div>
-		<div class="content-card" style="margin-bottom: 20px">
-			<h5>🌐 Resultados de búsqueda - PROVEEDOR RAZON SOCIAL</h5>
-			for _, r := range viewModel.SearchEngine.Results {
-				<div style="padding:10px; border-bottom:1px solid #333;">
-					<div style="font-weight:bold; color:#60a5fa;">
-						<a href={ templ.SafeURL(r.URL) } target="_blank">{ r.Title }</a>
+	<div class="results-layout animation-fade-in" style="display: grid; grid-template-columns: 1fr; gap: 32px; margin-top: 16px;">
+		<style>
+			@media (min-width: 992px) {
+				.results-layout { grid-template-columns: 380px 1fr !important; }
+				.sticky-panel { position: sticky; top: 24px; }
+			}
+		</style>
+		<div class="sticky-panel" style="display: flex; flex-direction: column; gap: 24px;">
+			if len(viewModel.Data.InformacionDelProveedor) > 0 {
+				<div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #2563eb; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);">
+					<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
+						<span style="font-size: 20px;">⭐</span>
+						<h3 style="color: #f8fafc; font-size: 16px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">Ficha del Proveedor</h3>
 					</div>
-					<div style="font-size:13px; opacity:0.8;">
-						{ r.Content }
-					</div>
-					<div style="font-size:11px; opacity:0.6;">
-						{ r.Engine } · score: { fmt.Sprintf("%.2f", r.Score) }
-					</div>
+					@renderInternalTable(viewModel.Data.InformacionDelProveedor)
 				</div>
 			}
-		</div>
-		<div class="content-card">
-			<h5>🌐 Resultados de búsqueda - ANALISIS POR TEMAS</h5>
-			for _, r := range viewModel.SearchEngineClean.Results {
-				<div style="padding:10px; border-bottom:1px solid #333;">
-					<div style="font-weight:bold; color:#60a5fa;">
-						<a href={ templ.SafeURL(r.URL) } target="_blank">{ r.Title }</a>
-					</div>
-					<div style="font-size:13px; opacity:0.8;">
-						{ r.Content }
-					</div>
-					<div style="font-size:11px; opacity:0.6;">
-						{ r.Engine } · score: { fmt.Sprintf("%.2f", r.Score) }
-					</div>
+			<div style="background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155;">
+				<h4 style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 16px 0; border-bottom: 1px solid #334155; padding-bottom: 8px;">
+					🗂️ Módulos de Control Interno
+				</h4>
+				<div style="display: flex; flex-direction: column; gap: 14px;">
+					@renderInternalSummaryRow("Socios Vinculados", viewModel.Data.Socios)
+					@renderInternalSummaryRow("Nómina / Empleados", viewModel.Data.EmpleadosEncontrados)
+					@renderInternalSummaryRow("Representación Legal", viewModel.Data.RepresentantesLegales)
+					@renderInternalSummaryRow("Historial Contratos", viewModel.Data.ContratosEncontrados)
+					@renderInternalSummaryRow("Estatus Fiscal SAT", viewModel.Data.ObservacionesSat)
 				</div>
-			}
+			</div>
+		</div>
+		<div style="display: flex; flex-direction: column; gap: 24px;">
+			<div style="background: #1e293b; border-radius: 12px; padding: 28px; border: 1px solid #334155;">
+				<h3 style="margin-top: 0; margin-bottom: 24px; color: #f1f5f9; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+					🔎 Auditoría de Fuentes Abiertas (OSINT)
+				</h3>
+				<div style="display: flex; flex-direction: column; gap: 32px;">
+					@renderWebSectionBlock("Busqueda directa del proveedor/Razón Social", viewModel.Data.InformacionDelProveedor)
+					@renderWebSectionBlock("Socios", viewModel.Data.Socios)
+					@renderWebSectionBlock("Empleados", viewModel.Data.EmpleadosEncontrados)
+					@renderWebSectionBlock("Representantes Legales", viewModel.Data.RepresentantesLegales)
+					@renderWebSectionBlock("Contratos Externos", viewModel.Data.ContratosEncontrados)
+					@renderWebSectionBlock("Alertas SAT / Diario Oficial", viewModel.Data.ObservacionesSat)
+				</div>
+			</div>
 		</div>
 	</div>
 }
 
-templ renderSection(title string, Data []map[string]string) {
-	if len(Data) > 0 {
-		<tr>
-			<th colspan="2" style="text-align:left; padding-top:12px; color:#60a5fa;">{ title }</th>
-		</tr>
-		for _, item := range Data {
-			for k, v := range item {
-				<tr>
-					<td style="padding:4px 8px; color:#94a3b8; width: 30%; vertical-align: top;">{ k }</td>
-					<td style="padding:4px 8px; vertical-align: top;">{ v }</td>
-				</tr>
+templ renderInternalTable(Data []models.InternalSearchResult) {
+	<table style="width:100%; border-collapse: collapse;">
+		<tbody>
+			for _, item := range Data {
+				for k, v := range item.Values {
+					<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+						<td style="padding:8px 0; color:#94a3b8; font-size: 13px; font-weight: 500; width: 40%; vertical-align: top;">{ k }</td>
+						<td style="padding:8px 0 8px 8px; color:#e2e8f0; font-size: 13px; vertical-align: top; text-align: right;">{ v }</td>
+					</tr>
+				}
 			}
-		}
+		</tbody>
+	</table>
+}
+
+templ renderInternalSummaryRow(label string, Data []models.InternalSearchResult) {
+	if len(Data) > 0 {
+		<div style="background: rgba(15, 23, 42, 0.4); padding: 12px; border-radius: 8px; border-left: 3px solid #10b981;">
+			<div style="font-size: 13px; font-weight: 600; color: #e2e8f0;">{ label }</div>
+			<div style="margin-top: 8px;">
+				@renderInternalTable(Data)
+			</div>
+		</div>
+	}
+}
+
+templ renderWebSectionBlock(sectionTitle string, internalResults []models.InternalSearchResult) {
+	// Evaluamos si hay resultados web reales antes de pintar la sección
+	if len(internalResults) > 0 {
+		<div style="border-left: 3px solid #475569; padding-left: 20px; margin-bottom: 8px;">
+			<h4 style="color: #60a5fa; font-size: 14px; font-weight: 700; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.05em;">
+				🔗 Hallazgos en { sectionTitle }
+			</h4>
+			for _, item := range internalResults {
+				if len(item.SearxngResponse.Results) > 0 {
+					<div style="font-size: 12px; color: #64748b; margin-bottom: 12px; background: rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 4px; display: inline-block;">
+						🌐 Criterio de rastreo web: <span style="font-style: italic; color: #94a3b8;">"{ item.SearxngResponse.Query }"</span>
+					</div>
+					<div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+						for _, r := range item.SearxngResponse.Results {
+							<div style="padding: 14px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='rgba(255,255,255,0.01)'">
+								<div style="font-weight: 600; font-size: 14px;">
+									<a href={ templ.SafeURL(r.URL) } target="_blank" style="color: #3b82f6; text-decoration: none;">
+										{ r.Title }
+									</a>
+								</div>
+								<p style="font-size: 13px; color: #cbd5e1; margin: 6px 0 8px 0; line-height: 1.4;">
+									{ r.Content }
+								</p>
+								<div style="font-size: 11px; color: #64748b; display: flex; gap: 16px;">
+									<span>📍 Origen: <strong style="color: #94a3b8;">{ r.Engine }</strong></span>
+									<span>🎯 Relevancia: <strong style="color: #94a3b8;">{ fmt.Sprintf("%.2f", r.Score) }</strong></span>
+								</div>
+							</div>
+						}
+					</div>
+				}
+			}
+		</div>
 	}
 }

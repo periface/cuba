@@ -2,12 +2,15 @@ package proveedores
 
 import (
 	"fmt"
+	"log"
+	"log/slog"
 	"reflect"
 	"strings"
 
 	"github.com/periface/cuba/internals/db"
 	"github.com/periface/cuba/internals/models"
 	"github.com/periface/cuba/internals/services/appsheets"
+	"github.com/periface/cuba/internals/utils"
 )
 
 func filtraCamposVacios(obj any, etiquetas map[string]string) map[string]string {
@@ -52,13 +55,9 @@ func buscaClasificacionDocumento(archivo string,
 	}
 	return response
 }
-func BuscarPorRfc(rfc string) []map[string]string {
+func BuscarPorRfc(rfc string, instance *appsheets.Appsheets) []models.InternalSearchResult {
 	proveedores := buscaProveedor(rfc)
-	app, err := appsheets.NewAppsheets()
-	if err != nil {
-		fmt.Println("Error al cargar appsheets", err.Error())
-	}
-	data, err := app.GetTable("CLASIFICACION")
+	data, err := instance.GetTable("CLASIFICACION")
 	if err != nil {
 		fmt.Println("Error al cargar los datos", err.Error())
 	}
@@ -70,7 +69,15 @@ func BuscarPorRfc(rfc string) []map[string]string {
 		data := filtraCamposVacios(val, etiquetas)
 		response = append(response, data)
 	}
-	return response
+
+	obsSat := []models.InternalSearchResult{}
+	for _, observacion := range response {
+		obsSat = append(obsSat, models.InternalSearchResult{
+			Values:          observacion,
+			SearxngResponse: models.SearxngResponse{},
+		})
+	}
+	return obsSat
 }
 
 func buscaProveedor(rfc string) []models.CondonacionSAT {
@@ -208,4 +215,306 @@ var etiquetas = map[string]string{
 	"file_name":                                "Archivo Fuente",
 	"clasificacion":                            "Clasificación",
 	"clasificacionDescription":                 "Descripción",
+}
+
+func FetchProveedorInfo(
+	rfcQuery string,
+) models.BuscarResponse {
+
+	internalSearchTool, err := NewInternalSearchTool()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	APIKEY, err := utils.GetEnvVariable("APPSHEETSID_RH")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	SECRET, err := utils.GetEnvVariable("APPSHEETSSECRET_RH")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// caso especial, no busca en appsheets, busca directamente en un archivo pregenerado
+	observacionesSat := BuscarPorRfc(rfcQuery, internalSearchTool.instance)
+	// caso especial, busca en otra instancia de appsheets
+	empleadosDeGobierno, err := internalSearchTool.RunSimpleKeyQueryIn(
+		APIKEY,
+		SECRET,
+		"EMPLEADOS",
+		"RFC",
+		rfcQuery,
+		[]string{"Partida", "Departamento", "ape_pat", "ape_mat", "nombre", "RFC"})
+
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	datosDelProveedor, err := internalSearchTool.RunSimpleKeyQuery(
+		"PADRON DE PROVEEDORES",
+		"RFC",
+		rfcQuery,
+		[]string{"RAZON SOCIAL", "NOMBRE DEL PROVEEDOR", "1ER. APELLIDO", "2O. APELLIDO", "GIRO", "FECHA ALTA", "FECHA VENCIMIENTO", "COORDENADAS"},
+	)
+
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	representantesLegales, err := internalSearchTool.RunSimpleKeyQuery(
+		"REPRESENTANTES LEGALES",
+		"RFC",
+		rfcQuery,
+		[]string{"Concatenado"},
+	)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	socios, err := internalSearchTool.RunSimpleKeyQuery("Socios", "RFC de Proveedor", rfcQuery,
+		[]string{"Nombre/Razón Social del Socio/Accionista"},
+	)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	contratos, err := internalSearchTool.RunSimpleKeyQuery("CONTRATOS", "Proveedor", rfcQuery,
+		[]string{"Concepto / Objeto del Contrato", "No. de Contrato DGCYOP",
+			"Concepto detallado del contrato", "Monto Total del Contrato"})
+
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	return models.BuscarResponse{
+		ObservacionesSat: observacionesSat,
+
+		EmpleadosEncontrados: empleadosDeGobierno,
+
+		ContratosEncontrados: contratos,
+
+		InformacionDelProveedor: datosDelProveedor,
+
+		RepresentantesLegales: representantesLegales,
+
+		Socios: socios,
+	}
+}
+
+func buscarProveedorEnAtcom(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
+	query := `Filter(PADRON DE PROVEEDORES, [RFC]=${rfc})`
+	query = strings.ReplaceAll(query, "${rfc}", rfc)
+
+	return instance.Search(
+		"PADRON DE PROVEEDORES",
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+}
+
+func buscarRepresentantesLegales(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
+	query := `Filter(REPRESENTANTES LEGALES, [RFC]=${rfc})`
+	query = strings.ReplaceAll(query, "${rfc}", rfc)
+
+	return instance.Search(
+		"REPRESENTANTES LEGALES",
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+}
+
+func buscarSocios(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
+	query := `Filter(Socios, [RFC de Proveedor]=${rfc})`
+	query = strings.ReplaceAll(query, "${rfc}", rfc)
+
+	return instance.Search(
+		"Socios",
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+}
+
+func buscarEmpleadosDeGobierno(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
+	APIKEY, err := utils.GetEnvVariable("APPSHEETSID_RH")
+	if err != nil {
+		return nil, err
+	}
+
+	SECRET, err := utils.GetEnvVariable("APPSHEETSSECRET_RH")
+	if err != nil {
+		return nil, err
+	}
+
+	query := `Filter(EMPLEADOS, [RFC]=${rfc})`
+	query = strings.ReplaceAll(query, "${rfc}", rfc)
+
+	return instance.SearchIn(
+		APIKEY,
+		SECRET,
+		"EMPLEADOS",
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+}
+
+func makeCorrectType(collection []map[string]string) []models.InternalSearchResult {
+	obsSat := []models.InternalSearchResult{}
+	for _, observacion := range collection {
+		obsSat = append(obsSat, models.InternalSearchResult{
+			Values:          observacion,
+			SearxngResponse: models.SearxngResponse{},
+		})
+	}
+	return obsSat
+}
+
+type InternalSearchTool struct {
+	instance *appsheets.Appsheets
+}
+
+func NewInternalSearchTool() (*InternalSearchTool, error) {
+	appsheetClient, err := appsheets.NewAppsheets()
+	if err != nil {
+		return nil, err
+	}
+	return &InternalSearchTool{
+		instance: appsheetClient,
+	}, nil
+}
+
+func CustomClientInternalSearchTool(client appsheets.Appsheets) (*InternalSearchTool, error) {
+	return &InternalSearchTool{
+		instance: &client,
+	}, nil
+}
+
+func (t *InternalSearchTool) RunSimpleKeyQueryIn(apiKey string, secret string, appsheetsTableName string,
+	keyPropertyName string,
+	keyValue string, requiredProps []string) ([]models.InternalSearchResult, error) {
+
+	query := `Filter(${appsheetsTableName}, [${keyPropertyName}]=${keyValue})`
+
+	query = strings.ReplaceAll(query, "${appsheetsTableName}", appsheetsTableName)
+	query = strings.ReplaceAll(query, "${keyPropertyName}", keyPropertyName)
+	query = strings.ReplaceAll(query, "${keyValue}", keyValue)
+
+	searchResponse, err := t.instance.SearchIn(
+		apiKey,
+		secret,
+		appsheetsTableName,
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	filteredProps := getOnlyThisProps(searchResponse, requiredProps)
+
+	mapped := makeCorrectType(filteredProps)
+
+	return mapped, nil
+
+}
+func (t *InternalSearchTool) RunSimpleKeyQuery(appsheetsTableName string,
+	keyPropertyName string,
+	keyValue string, requiredProps []string) ([]models.InternalSearchResult, error) {
+
+	query := `Filter(${appsheetsTableName}, [${keyPropertyName}]=${keyValue})`
+
+	query = strings.ReplaceAll(query, "${appsheetsTableName}", appsheetsTableName)
+	query = strings.ReplaceAll(query, "${keyPropertyName}", keyPropertyName)
+	query = strings.ReplaceAll(query, "${keyValue}", keyValue)
+
+	searchResponse, err := t.instance.Search(
+		appsheetsTableName,
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	filteredProps := getOnlyThisProps(searchResponse, requiredProps)
+
+	mapped := makeCorrectType(filteredProps)
+
+	return mapped, nil
+
+}
+
+// BLUEPRINT FOR SERVICE
+
+func buscarContratos(rfc string,
+	instance *appsheets.Appsheets,
+	validProps []string) ([]models.InternalSearchResult, error) {
+	query := `Filter(CONTRATOS, [Proveedor]=${rfc})`
+	query = strings.ReplaceAll(query, "${rfc}", rfc)
+
+	searchResponse, err := instance.Search(
+		"CONTRATOS",
+		models.AppSheetsPayload{
+			Action: "Find",
+			Properties: map[string]string{
+				"Selector": query,
+			},
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	filteredProps := getOnlyThisProps(searchResponse, validProps)
+
+	mapped := makeCorrectType(filteredProps)
+
+	return mapped, nil
+}
+
+func getOnlyThisProps(inputList []map[string]string, validProps []string) []map[string]string {
+	validSet := make(map[string]struct{})
+	for _, prop := range validProps {
+		validSet[prop] = struct{}{}
+	}
+
+	var result []map[string]string
+	for _, item := range inputList {
+		filtered := make(map[string]string)
+		for key, value := range item {
+			if _, ok := validSet[key]; ok {
+				filtered[key] = value
+			}
+		}
+		result = append(result, filtered)
+	}
+
+	return result
 }

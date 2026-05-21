@@ -1,7 +1,6 @@
 package proveedores
 
 import (
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 	"github.com/periface/cuba/internals/llm"
 	"github.com/periface/cuba/internals/models"
 	"github.com/periface/cuba/internals/prompts"
-	"github.com/periface/cuba/internals/services/appsheets"
 	"github.com/periface/cuba/internals/services/proveedores"
 	searchxng "github.com/periface/cuba/internals/services/searchXNG"
 	"github.com/periface/cuba/internals/utils"
@@ -43,10 +41,6 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	if rfc == "" {
 		return h.renderSuccess(c, models.BuscarResponse{},
 			"Error, no RFC",
-			models.SearxngResponse{},
-			models.SearxngResponse{},
-			"",
-			"",
 		)
 	}
 
@@ -61,26 +55,13 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	searchxngClient := searchxng.NewSearXNGClient(serverPath)
 
 	// --------------------------------------------
-	// AppSheets
+	// Extracción de Datos e Identidad
 	// --------------------------------------------
-	appsheetClient, err := appsheets.NewAppsheets()
-	if err != nil {
-		slog.Error(
-			"appsheets init error",
-			"error", err.Error(),
-			"rfc", rfc,
-		)
-		return h.renderError(
-			c,
-			http.StatusInternalServerError,
-			"Error inicializando AppSheets",
-		)
-	}
+	proveedorInfo := proveedores.FetchProveedorInfo(rfc)
 
 	// --------------------------------------------
 	// Extracción de Datos e Identidad
 	// --------------------------------------------
-	proveedorInfo := fetchProveedorInfo(rfc, appsheetClient)
 	basePrompt, data := prompts.AnalisisDeProveedoresPrompt(rfc, proveedorInfo)
 
 	// Configuración para la API de SearXNG
@@ -88,30 +69,38 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	motores := []string{"google_news", "bing_news", "google"}
 
 	// --------------------------------------------
-	// EJECUCIÓN DE BÚSQUEDA DOBLE
+	// EJECUCIÓN DE BÚSQUEDA POR PROVEEDOR/REPRESENTANTE/SOCIOS [VOLVER ASYNC PARA EVITAR BLOQUEOS]
 	// --------------------------------------------
-
-	// 1. Búsqueda de Alertas de Riesgo (Filtros estrictos con AND)
-	queryRiesgo := buildSearchQueryString(rfc, proveedorInfo)
-	var responseRiesgo models.SearxngResponse
-	if queryRiesgo != "" {
-		responseRiesgo, err = searchxngClient.AdvancedSearch(queryRiesgo, categorias, motores)
+	for i, proveedor := range proveedorInfo.InformacionDelProveedor {
+		searchQuery := buildSingleCleanSearchQuery(rfc, proveedor)
+		proveedorSearch, err := searchxngClient.AdvancedSearch(searchQuery, categorias, motores, 10)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
+		proveedorInfo.InformacionDelProveedor[i].SearxngResponse = proveedorSearch
 	}
 
-	// 2. Búsqueda Limpia (Sólo nombres/razón social para capturar notas de prensa normales)
-	queryLimpio := buildCleanSearchQuery(rfc, proveedorInfo)
-	var responseLimpia models.SearxngResponse
-	if queryLimpio != "" {
-		responseLimpia, err = searchxngClient.AdvancedSearch(queryLimpio, categorias, motores)
+	for i, representante := range proveedorInfo.RepresentantesLegales {
+
+		slog.Info(representante.Values["Concatenado"])
+
+		representanteSearch, err := searchxngClient.AdvancedSearch(representante.Values["Concatenado"], categorias, motores, 3)
 		if err != nil {
-			slog.Error("error busqueda limpia", "error", err.Error(), "rfc", rfc)
+			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
+		proveedorInfo.RepresentantesLegales[i].SearxngResponse = representanteSearch
 	}
 
-	// 3. Unificación inteligente de resultados sin duplicar URLs
+	for i, socio := range proveedorInfo.Socios {
+
+		slog.Info(socio.Values["Nombre/Razón Social del Socio/Accionista"])
+
+		socioSearch, err := searchxngClient.AdvancedSearch(socio.Values["Nombre/Razón Social del Socio/Accionista"], categorias, motores, 3)
+		if err != nil {
+			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
+		}
+		proveedorInfo.Socios[i].SearxngResponse = socioSearch
+	}
 
 	// --------------------------------------------
 	// Render response
@@ -120,10 +109,6 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		c,
 		data,
 		basePrompt,
-		responseLimpia,
-		responseRiesgo,
-		queryLimpio,
-		queryRiesgo,
 	)
 }
 
@@ -182,8 +167,8 @@ func buildSearchQueryString(rfc string, data models.BuscarResponse) string {
 	var razonSocial, nombreProveedor string
 
 	if len(data.InformacionDelProveedor) > 0 {
-		razonSocial = data.InformacionDelProveedor[0]["RAZON SOCIAL"]
-		nombreProveedor = data.InformacionDelProveedor[0]["NOMBRE DEL PROVEEDOR"]
+		razonSocial = data.InformacionDelProveedor[0].Values["RAZON SOCIAL"]
+		nombreProveedor = data.InformacionDelProveedor[0].Values["NOMBRE DEL PROVEEDOR"]
 	}
 
 	var identities []string
@@ -212,16 +197,38 @@ func buildSearchQueryString(rfc string, data models.BuscarResponse) string {
 
 	return identityQuery + " AND " + keywordsQuery
 }
+func buildSingleCleanSearchQuery(rfc string, data models.InternalSearchResult) string {
+	var razonSocial, nombreProveedor string
+
+	razonSocial = data.Values["RAZON SOCIAL"]
+	nombreProveedor = data.Values["NOMBRE DEL PROVEEDOR"] + " " +
+		data.Values["1ER. APELLIDO"] + " " +
+		data.Values["2O. APELLIDO"]
+		//"1ER. APELLIDO", "2O. APELLIDO"
+
+	var identities []string
+	if razonSocial != "" {
+		identities = append(identities, `"`+razonSocial+`"`)
+	}
+	if nombreProveedor != "" && nombreProveedor != razonSocial {
+		identities = append(identities, `"`+nombreProveedor+`"`)
+	}
+	if len(identities) == 0 && rfc != "" {
+		identities = append(identities, `"`+rfc+`"`)
+	}
+
+	return strings.Join(identities, " OR ")
+}
 
 // buildCleanSearchQuery genera una consulta pura de identidad sin condicionales de peligro.
 func buildCleanSearchQuery(rfc string, data models.BuscarResponse) string {
 	var razonSocial, nombreProveedor string
 
 	if len(data.InformacionDelProveedor) > 0 {
-		razonSocial = data.InformacionDelProveedor[0]["RAZON SOCIAL"]
-		nombreProveedor = data.InformacionDelProveedor[0]["NOMBRE DEL PROVEEDOR"] + " " +
-			data.InformacionDelProveedor[0]["1ER. APELLIDO"] + " " +
-			data.InformacionDelProveedor[0]["2O. APELLIDO"]
+		razonSocial = data.InformacionDelProveedor[0].Values["RAZON SOCIAL"]
+		nombreProveedor = data.InformacionDelProveedor[0].Values["NOMBRE DEL PROVEEDOR"] + " " +
+			data.InformacionDelProveedor[0].Values["1ER. APELLIDO"] + " " +
+			data.InformacionDelProveedor[0].Values["2O. APELLIDO"]
 		//"1ER. APELLIDO", "2O. APELLIDO"
 	}
 
@@ -243,19 +250,11 @@ func (h *ProveedoresHandlers) renderSuccess(
 	c echo.Context,
 	data models.BuscarResponse,
 	prompt string,
-	searchEngine models.SearxngResponse,
-	searchEngineClean models.SearxngResponse,
-	queryClean string,
-	queryRiesgo string,
 ) error {
 	component := views.Buscar(
 		models.BuscarViewModel{
-			Data:              data,
-			Prompt:            prompt,
-			SearchEngine:      searchEngine,
-			SearchEngineClean: searchEngineClean,
-			QueryClean:        queryClean,
-			QueryRiesgo:       queryRiesgo,
+			Data:   data,
+			Prompt: prompt,
 		},
 	)
 
@@ -279,149 +278,4 @@ func (h *ProveedoresHandlers) renderError(
 		status,
 		component,
 	)
-}
-
-func fetchProveedorInfo(
-	rfcQuery string,
-	appsheetsInstance *appsheets.Appsheets,
-) models.BuscarResponse {
-	observacionesSat := proveedores.BuscarPorRfc(rfcQuery)
-
-	empleadosDeGobierno, err := buscarEmpleadosDeGobierno(rfcQuery, appsheetsInstance)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-
-	datosDelProveedor, err := buscarProveedorEnAtcom(rfcQuery, appsheetsInstance)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-
-	representantesLegales, err := buscarRepresentantesLegales(rfcQuery, appsheetsInstance)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-
-	contratos, err := buscarContratos(rfcQuery, appsheetsInstance)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-
-	fmt.Println(empleadosDeGobierno)
-
-	return models.BuscarResponse{
-		ObservacionesSat: observacionesSat,
-
-		EmpleadosEncontrados: getOnlyThisProps(
-			empleadosDeGobierno,
-			[]string{"Partida", "Departamento", "ape_pat", "ape_mat", "nombre", "RFC"},
-		),
-
-		ContratosEncontrados: getOnlyThisProps(
-			contratos,
-			[]string{"Concepto / Objeto del Contrato", "No. de Contrato DGCYOP", "Concepto detallado del contrato", "Monto Total del Contrato"},
-		),
-
-		InformacionDelProveedor: getOnlyThisProps(
-			datosDelProveedor,
-			[]string{"RAZON SOCIAL", "NOMBRE DEL PROVEEDOR", "1ER. APELLIDO", "2O. APELLIDO", "GIRO", "FECHA ALTA", "FECHA VENCIMIENTO", "COORDENADAS"},
-		),
-
-		RepresentantesLegales: getOnlyThisProps(
-			representantesLegales,
-			[]string{"Concatenado"},
-		),
-	}
-}
-
-func buscarProveedorEnAtcom(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
-	query := `Filter(PADRON DE PROVEEDORES, [RFC]=${rfc})`
-	query = strings.ReplaceAll(query, "${rfc}", rfc)
-
-	return instance.Search(
-		"PADRON DE PROVEEDORES",
-		models.AppSheetsPayload{
-			Action: "Find",
-			Properties: map[string]string{
-				"Selector": query,
-			},
-		},
-	)
-}
-
-func buscarRepresentantesLegales(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
-	query := `Filter(REPRESENTANTES LEGALES, [RFC]=${rfc})`
-	query = strings.ReplaceAll(query, "${rfc}", rfc)
-
-	return instance.Search(
-		"REPRESENTANTES LEGALES",
-		models.AppSheetsPayload{
-			Action: "Find",
-			Properties: map[string]string{
-				"Selector": query,
-			},
-		},
-	)
-}
-
-func buscarEmpleadosDeGobierno(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
-	APIKEY, err := utils.GetEnvVariable("APPSHEETSID_RH")
-	if err != nil {
-		return nil, err
-	}
-
-	SECRET, err := utils.GetEnvVariable("APPSHEETSSECRET_RH")
-	if err != nil {
-		return nil, err
-	}
-
-	query := `Filter(EMPLEADOS, [RFC]=${rfc})`
-	query = strings.ReplaceAll(query, "${rfc}", rfc)
-
-	return instance.SearchIn(
-		APIKEY,
-		SECRET,
-		"EMPLEADOS",
-		models.AppSheetsPayload{
-			Action: "Find",
-			Properties: map[string]string{
-				"Selector": query,
-			},
-		},
-	)
-}
-
-func buscarContratos(rfc string, instance *appsheets.Appsheets) ([]map[string]string, error) {
-	query := `Filter(CONTRATOS, [Proveedor]=${rfc})`
-	query = strings.ReplaceAll(query, "${rfc}", rfc)
-
-	return instance.Search(
-		"CONTRATOS",
-		models.AppSheetsPayload{
-			Action: "Find",
-			Properties: map[string]string{
-				"Selector": query,
-			},
-		},
-	)
-}
-
-func getOnlyThisProps(inputList []map[string]string, validProps []string) []map[string]string {
-	validSet := make(map[string]struct{})
-	for _, prop := range validProps {
-		validSet[prop] = struct{}{}
-	}
-
-	var result []map[string]string
-	for _, item := range inputList {
-		filtered := make(map[string]string)
-		for key, value := range item {
-			if _, ok := validSet[key]; ok {
-				filtered[key] = value
-			}
-		}
-		result = append(result, filtered)
-	}
-
-	return result
 }
