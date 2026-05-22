@@ -20,7 +20,7 @@ import (
 
 var renderers = utils.NewRenderers()
 
-const MIN_SCORE float64 = 1
+const MIN_SCORE float64 = 0.5
 
 type ProveedoresHandlers struct{}
 
