@@ -5,7 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
-	"strings"
+	"strconv"
 
 	"github.com/labstack/echo"
 
@@ -28,6 +28,10 @@ func NewProveedoresHandlers() *ProveedoresHandlers {
 	return &ProveedoresHandlers{}
 }
 
+func buildPersonQuery(query string, customSearch string) string {
+	return fmt.Sprintf("\"%s\" "+customSearch, query)
+}
+
 func (h *ProveedoresHandlers) ProveedoresIndex(c echo.Context) error {
 	rfc := c.QueryParam("rfc")
 
@@ -40,7 +44,21 @@ func (h *ProveedoresHandlers) ProveedoresIndex(c echo.Context) error {
 
 func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	rfc := c.QueryParam("rfc")
-
+	minScoreStr := c.QueryParam("min_score")
+	customSearch := c.QueryParam("customSearch")
+	if customSearch == "" {
+		customSearch = "corrupcion"
+	}
+	var minScore float64 = 0
+	if minScoreStr == "" {
+		minScore = MIN_SCORE
+	} else {
+		parsedScore, err := strconv.ParseFloat(minScoreStr, 64)
+		if err != nil {
+			minScore = MIN_SCORE
+		}
+		minScore = parsedScore
+	}
 	if rfc == "" {
 		return h.renderSuccess(c, models.BuscarResponse{},
 			"Error, no RFC",
@@ -75,7 +93,12 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	// EJECUCIÓN DE BÚSQUEDA POR PROVEEDOR/REPRESENTANTE/SOCIOS [VOLVER ASYNC PARA EVITAR BLOQUEOS]
 	// --------------------------------------------
 	for i, proveedor := range proveedorInfo.InformacionDelProveedor {
-		searchQuery := buildSingleCleanSearchQuery(rfc, proveedor)
+		searchQuery, hasRazonSocial := buildSingleCleanSearchQuery(rfc, proveedor)
+
+		if !hasRazonSocial {
+			searchQuery = buildPersonQuery(searchQuery, customSearch)
+		}
+
 		proveedorSearch, err := searchxngClient.AdvancedSearch(searchQuery, categorias, motores, 10)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
@@ -83,7 +106,7 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		n := 0
 		for _, result := range proveedorSearch.Results {
 			fmt.Println(result.Score)
-			if result.Score >= MIN_SCORE {
+			if result.Score >= minScore {
 				proveedorSearch.Results[n] = result
 				n++
 			}
@@ -94,7 +117,10 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 	}
 
 	for i, representante := range proveedorInfo.RepresentantesLegales {
-		representanteSearch, err := searchxngClient.AdvancedSearch(representante.Values["Concatenado"], categorias, motores, 3)
+
+		query := buildPersonQuery(representante.Values["Concatenado"], customSearch)
+
+		representanteSearch, err := searchxngClient.AdvancedSearch(query, categorias, motores, 10)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
@@ -102,7 +128,7 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		for _, result := range representanteSearch.Results {
 
 			fmt.Println(result.Score)
-			if result.Score >= MIN_SCORE {
+			if result.Score >= minScore {
 				representanteSearch.Results[n] = result
 				n++
 			}
@@ -113,7 +139,9 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 
 	for i, socio := range proveedorInfo.Socios {
 
-		socioSearch, err := searchxngClient.AdvancedSearch(socio.Values["Nombre/Razón Social del Socio/Accionista"], categorias, motores, 3)
+		query := buildPersonQuery(socio.Values["Nombre/Razón Social del Socio/Accionista"], customSearch)
+
+		socioSearch, err := searchxngClient.AdvancedSearch(query, categorias, motores, 10)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
@@ -123,7 +151,7 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		for _, result := range socioSearch.Results {
 
 			fmt.Println(result.Score)
-			if result.Score >= MIN_SCORE {
+			if result.Score >= minScore {
 				socioSearch.Results[n] = result
 				n++
 			}
@@ -141,9 +169,11 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 
 		nombre := empleado.Values["nombre"] + " " + empleado.Values["ape_pat"] + " " + empleado.Values["ape_mat"]
 
+		query := buildPersonQuery(nombre, customSearch)
+
 		empleadoSearch, err := searchxngClient.AdvancedSearch(
-			nombre,
-			categorias, motores, 3)
+			query,
+			categorias, motores, 10)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
@@ -151,7 +181,7 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		for _, result := range empleadoSearch.Results {
 
 			fmt.Println(result.Score)
-			if result.Score >= MIN_SCORE {
+			if result.Score >= minScore {
 				empleadoSearch.Results[n] = result
 				n++
 			}
@@ -219,8 +249,9 @@ func (h *ProveedoresHandlers) CorrerAnalisis(c echo.Context) error {
 	return c.JSON(http.StatusOK, llmResponse)
 }
 
-func buildSingleCleanSearchQuery(rfc string, data models.InternalSearchResult) string {
+func buildSingleCleanSearchQuery(rfc string, data models.InternalSearchResult) (string, bool) {
 	var razonSocial, nombreProveedor string
+	var hasRazonSocial bool = false
 
 	razonSocial = data.Values["RAZON SOCIAL"]
 	nombreProveedor = data.Values["NOMBRE DEL PROVEEDOR"] + " " +
@@ -228,18 +259,12 @@ func buildSingleCleanSearchQuery(rfc string, data models.InternalSearchResult) s
 		data.Values["2O. APELLIDO"]
 		//"1ER. APELLIDO", "2O. APELLIDO"
 
-	var identities []string
 	if razonSocial != "" {
-		identities = append(identities, `"`+razonSocial+`"`)
+		return razonSocial, hasRazonSocial
+	} else if nombreProveedor != "" {
+		return nombreProveedor, false
 	}
-	if nombreProveedor != "" && nombreProveedor != razonSocial {
-		identities = append(identities, `"`+nombreProveedor+`"`)
-	}
-	if len(identities) == 0 && rfc != "" {
-		identities = append(identities, `"`+rfc+`"`)
-	}
-
-	return strings.Join(identities, " OR ")
+	return rfc, false
 }
 
 // buildCleanSearchQuery genera una consulta pura de identidad sin condicionales de peligro.
