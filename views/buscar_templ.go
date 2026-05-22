@@ -76,7 +76,7 @@ func Buscar(viewModel models.BuscarViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div></div><div style=\"display: flex; flex-direction: column; gap: 24px;\"><div style=\"background: #1e293b; border-radius: 12px; padding: 28px; border: 1px solid #334155;\"><h3 style=\"margin-top: 0; margin-bottom: 24px; color: #f1f5f9; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;\">🔎 Auditoría de Fuentes Abiertas (OSINT)</h3><div style=\"display: flex; flex-direction: column; gap: 32px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div></div><div style=\"display: flex; flex-direction: column; gap: 24px;\"><div style=\"background: #1e293b; border-radius: 12px; padding: 28px; border: 1px solid #334155;\"><h3 style=\"margin-top: 0; margin-bottom: 24px; color: #f1f5f9; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;\">🔎 Auditoría de Fuentes Abiertas</h3><div style=\"display: flex; flex-direction: column; gap: 32px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,7 +96,7 @@ func Buscar(viewModel models.BuscarViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = renderWebSectionBlock("Contratos Externos", viewModel.Data.ContratosEncontrados).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = renderWebSectionBlock("Contratos", viewModel.Data.ContratosEncontrados).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -226,6 +226,24 @@ func renderInternalSummaryRow(label string, Data []models.InternalSearchResult) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"background: rgba(15, 23, 42, 0.4); padding: 12px; border-radius: 8px; border-left: 3px solid #10b981;\"><div style=\"font-size: 13px; font-weight: 600; color: #e2e8f0;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(label)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 82, Col: 74}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div style=\"margin-top: 8px;\"><h5>No se encontraron resultados internos</h5></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})
@@ -247,126 +265,153 @@ func renderWebSectionBlock(sectionTitle string, internalResults []models.Interna
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var7 == nil {
-			templ_7745c5c3_Var7 = templ.NopComponent
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(internalResults) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"border-left: 3px solid #475569; padding-left: 20px; margin-bottom: 8px;\"><h4 style=\"color: #60a5fa; font-size: 14px; font-weight: 700; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.05em;\">🔗 Hallazgos en ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div style=\"border-left: 3px solid #475569; padding-left: 20px; margin-bottom: 8px;\"><h4 style=\"color: #60a5fa; font-size: 14px; font-weight: 700; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.05em;\">🔗 Hallazgos en ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTitle)
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTitle)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 88, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 97, Col: 36}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</h4>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</h4>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, item := range internalResults {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div style=\"font-size: 11px; color: #64748b; display: flex; gap: 16px;\"><span>Query: <strong style=\"color: #94a3b8;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(item.SearxngResponse.Query)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 101, Col: 78}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</strong></span></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				if len(item.SearxngResponse.Results) > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div style=\"font-size: 12px; color: #64748b; margin-bottom: 12px; background: rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 4px; display: inline-block;\">🌐 Criterio de rastreo web: <span style=\"font-style: italic; color: #94a3b8;\">\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(item.SearxngResponse.Query)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 93, Col: 115}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"</span></div><div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					for _, r := range item.SearxngResponse.Results {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div style=\"padding: 14px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;\" onmouseover=\"this.style.background='rgba(255,255,255,0.03)'\" onmouseout=\"this.style.background='rgba(255,255,255,0.01)'\"><div style=\"font-weight: 600; font-size: 14px;\"><a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div style=\"padding: 14px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;\" onmouseover=\"this.style.background='rgba(255,255,255,0.03)'\" onmouseout=\"this.style.background='rgba(255,255,255,0.01)'\"><div style=\"font-weight: 600; font-size: 14px;\"><a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var10 templ.SafeURL
-						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(r.URL))
+						var templ_7745c5c3_Var11 templ.SafeURL
+						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(r.URL))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 99, Col: 39}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" target=\"_blank\" style=\"color: #3b82f6; text-decoration: none;\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var11 string
-						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(r.Title)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 100, Col: 19}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 108, Col: 39}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</a></div><p style=\"font-size: 13px; color: #cbd5e1; margin: 6px 0 8px 0; line-height: 1.4;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" target=\"_blank\" style=\"color: #3b82f6; text-decoration: none;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var12 string
-						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(r.Content)
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(r.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 104, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 109, Col: 19}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</p><div style=\"font-size: 11px; color: #64748b; display: flex; gap: 16px;\"><span>📍 Origen: <strong style=\"color: #94a3b8;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</a></div><p style=\"font-size: 13px; color: #cbd5e1; margin: 6px 0 8px 0; line-height: 1.4;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var13 string
-						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(r.Engine)
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(r.Content)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 107, Col: 70}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 113, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</strong></span> <span>🎯 Relevancia: <strong style=\"color: #94a3b8;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p><div style=\"font-size: 11px; color: #64748b; display: flex; gap: 16px;\"><span>📍 Origen: <strong style=\"color: #94a3b8;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var14 string
-						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", r.Score))
+						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(r.Engine)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 108, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 116, Col: 70}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</strong></span></div></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</strong></span> <span>🎯 Relevancia: <strong style=\"color: #94a3b8;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var15 string
+						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", r.Score))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 117, Col: 94}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</strong></span></div></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;\"><div style=\"padding: 14px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;\" onmouseover=\"this.style.background='rgba(255,255,255,0.03)'\" onmouseout=\"this.style.background='rgba(255,255,255,0.01)'\"><div style=\"font-weight: 600; font-size: 14px;\"><h4 style=\"color: #60a5fa; font-size: 14px; font-weight: 700; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.05em;\">Sin resultados relevantes</h4></div></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div style=\"border-left: 3px solid #475569; padding-left: 20px; margin-bottom: 8px;\"><h4 style=\"color: #60a5fa; font-size: 14px; font-weight: 700; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.05em;\">🔗 Hallazgos en ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTitle)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/buscar.templ`, Line: 138, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</h4><div style=\"display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;\"><div style=\"padding: 14px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;\" onmouseover=\"this.style.background='rgba(255,255,255,0.03)'\" onmouseout=\"this.style.background='rgba(255,255,255,0.01)'\"><div style=\"font-weight: 600; font-size: 14px;\"><h4 style=\"color: #60a5fa; font-size: 14px; font-weight: 700; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.05em;\">Sin resultados relevantes</h4></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

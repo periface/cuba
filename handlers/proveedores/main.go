@@ -1,6 +1,7 @@
 package proveedores
 
 import (
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -18,6 +19,8 @@ import (
 )
 
 var renderers = utils.NewRenderers()
+
+const MIN_SCORE float64 = 1
 
 type ProveedoresHandlers struct{}
 
@@ -77,31 +80,85 @@ func (h *ProveedoresHandlers) BuscarProveedor(c echo.Context) error {
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
+		n := 0
+		for _, result := range proveedorSearch.Results {
+			fmt.Println(result.Score)
+			if result.Score >= MIN_SCORE {
+				proveedorSearch.Results[n] = result
+				n++
+			}
+		}
+
+		proveedorSearch.Results = proveedorSearch.Results[:n]
 		proveedorInfo.InformacionDelProveedor[i].SearxngResponse = proveedorSearch
 	}
 
 	for i, representante := range proveedorInfo.RepresentantesLegales {
-
-		slog.Info(representante.Values["Concatenado"])
-
 		representanteSearch, err := searchxngClient.AdvancedSearch(representante.Values["Concatenado"], categorias, motores, 3)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
+		n := 0
+		for _, result := range representanteSearch.Results {
+
+			fmt.Println(result.Score)
+			if result.Score >= MIN_SCORE {
+				representanteSearch.Results[n] = result
+				n++
+			}
+		}
+		representanteSearch.Results = representanteSearch.Results[:n]
 		proveedorInfo.RepresentantesLegales[i].SearxngResponse = representanteSearch
 	}
 
 	for i, socio := range proveedorInfo.Socios {
 
-		slog.Info(socio.Values["Nombre/Razón Social del Socio/Accionista"])
-
 		socioSearch, err := searchxngClient.AdvancedSearch(socio.Values["Nombre/Razón Social del Socio/Accionista"], categorias, motores, 3)
 		if err != nil {
 			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
 		}
+
+		n := 0
+
+		for _, result := range socioSearch.Results {
+
+			fmt.Println(result.Score)
+			if result.Score >= MIN_SCORE {
+				socioSearch.Results[n] = result
+				n++
+			}
+		}
+		socioSearch.Results = socioSearch.Results[:n]
 		proveedorInfo.Socios[i].SearxngResponse = socioSearch
+
+		fmt.Print("SOCIOS DONE")
 	}
 
+	for i, empleado := range proveedorInfo.EmpleadosEncontrados {
+		fmt.Print("ENTRANDO DONE")
+
+		fmt.Print(empleado.Values)
+
+		nombre := empleado.Values["nombre"] + " " + empleado.Values["ape_pat"] + " " + empleado.Values["ape_mat"]
+
+		empleadoSearch, err := searchxngClient.AdvancedSearch(
+			nombre,
+			categorias, motores, 3)
+		if err != nil {
+			slog.Error("error busqueda riesgo", "error", err.Error(), "rfc", rfc)
+		}
+		n := 0
+		for _, result := range empleadoSearch.Results {
+
+			fmt.Println(result.Score)
+			if result.Score >= MIN_SCORE {
+				empleadoSearch.Results[n] = result
+				n++
+			}
+		}
+		empleadoSearch.Results = empleadoSearch.Results[:n]
+		proveedorInfo.EmpleadosEncontrados[i].SearxngResponse = empleadoSearch
+	}
 	// --------------------------------------------
 	// Render response
 	// --------------------------------------------
@@ -162,41 +219,6 @@ func (h *ProveedoresHandlers) CorrerAnalisis(c echo.Context) error {
 	return c.JSON(http.StatusOK, llmResponse)
 }
 
-// buildSearchQueryString genera la consulta restrictiva de riesgos usando operadores lógicos llimpios.
-func buildSearchQueryString(rfc string, data models.BuscarResponse) string {
-	var razonSocial, nombreProveedor string
-
-	if len(data.InformacionDelProveedor) > 0 {
-		razonSocial = data.InformacionDelProveedor[0].Values["RAZON SOCIAL"]
-		nombreProveedor = data.InformacionDelProveedor[0].Values["NOMBRE DEL PROVEEDOR"]
-	}
-
-	var identities []string
-	if rfc != "" {
-		identities = append(identities, `"`+rfc+`"`)
-	}
-	if razonSocial != "" {
-		identities = append(identities, `"`+razonSocial+`"`)
-	}
-	if nombreProveedor != "" && nombreProveedor != razonSocial {
-		identities = append(identities, `"`+nombreProveedor+`"`)
-	}
-
-	if len(identities) == 0 {
-		return ""
-	}
-	identityQuery := "(" + strings.Join(identities, " OR ") + ")"
-
-	keywords := []string{
-		"corrupción", "fraude", "SAT", `"lavado de dinero"`,
-		`"conflicto de interés"`, "inhabilitado", "ASF", "multa",
-		"desvío", `"empresas fantasma"`, "investigación", "denuncia",
-		`"lista negra"`, "SFP",
-	}
-	keywordsQuery := "(" + strings.Join(keywords, " OR ") + ")"
-
-	return identityQuery + " AND " + keywordsQuery
-}
 func buildSingleCleanSearchQuery(rfc string, data models.InternalSearchResult) string {
 	var razonSocial, nombreProveedor string
 
@@ -221,30 +243,6 @@ func buildSingleCleanSearchQuery(rfc string, data models.InternalSearchResult) s
 }
 
 // buildCleanSearchQuery genera una consulta pura de identidad sin condicionales de peligro.
-func buildCleanSearchQuery(rfc string, data models.BuscarResponse) string {
-	var razonSocial, nombreProveedor string
-
-	if len(data.InformacionDelProveedor) > 0 {
-		razonSocial = data.InformacionDelProveedor[0].Values["RAZON SOCIAL"]
-		nombreProveedor = data.InformacionDelProveedor[0].Values["NOMBRE DEL PROVEEDOR"] + " " +
-			data.InformacionDelProveedor[0].Values["1ER. APELLIDO"] + " " +
-			data.InformacionDelProveedor[0].Values["2O. APELLIDO"]
-		//"1ER. APELLIDO", "2O. APELLIDO"
-	}
-
-	var identities []string
-	if razonSocial != "" {
-		identities = append(identities, `"`+razonSocial+`"`)
-	}
-	if nombreProveedor != "" && nombreProveedor != razonSocial {
-		identities = append(identities, `"`+nombreProveedor+`"`)
-	}
-	if len(identities) == 0 && rfc != "" {
-		identities = append(identities, `"`+rfc+`"`)
-	}
-
-	return strings.Join(identities, " OR ")
-}
 
 func (h *ProveedoresHandlers) renderSuccess(
 	c echo.Context,
@@ -261,21 +259,6 @@ func (h *ProveedoresHandlers) renderSuccess(
 	return renderers.RenderNoLayout(
 		c,
 		http.StatusOK,
-		component,
-	)
-}
-
-func (h *ProveedoresHandlers) renderError(
-	c echo.Context,
-	status int,
-	_ string,
-) error {
-	component := views.Buscar(
-		models.BuscarViewModel{},
-	)
-	return renderers.RenderNoLayout(
-		c,
-		status,
 		component,
 	)
 }

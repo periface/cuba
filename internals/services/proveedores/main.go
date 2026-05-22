@@ -251,6 +251,8 @@ func FetchProveedorInfo(
 		slog.Error(err.Error())
 	}
 
+	fmt.Print("EMPLEADOS", len(empleadosDeGobierno))
+
 	datosDelProveedor, err := internalSearchTool.RunSimpleKeyQuery(
 		"PADRON DE PROVEEDORES",
 		"RFC",
@@ -262,6 +264,7 @@ func FetchProveedorInfo(
 		slog.Error(err.Error())
 	}
 
+	fmt.Print("PROVEEDORES", len(datosDelProveedor))
 	representantesLegales, err := internalSearchTool.RunSimpleKeyQuery(
 		"REPRESENTANTES LEGALES",
 		"RFC",
@@ -275,6 +278,8 @@ func FetchProveedorInfo(
 	socios, err := internalSearchTool.RunSimpleKeyQuery("Socios", "RFC de Proveedor", rfcQuery,
 		[]string{"Nombre/Razón Social del Socio/Accionista"},
 	)
+
+	fmt.Print("SOCIOS", len(socios))
 	if err != nil {
 		slog.Error(err.Error())
 	}
@@ -283,6 +288,7 @@ func FetchProveedorInfo(
 		[]string{"Concepto / Objeto del Contrato", "No. de Contrato DGCYOP",
 			"Concepto detallado del contrato", "Monto Total del Contrato"})
 
+	fmt.Print("CONTRATOS", len(contratos))
 	if err != nil {
 		slog.Error(err.Error())
 	}

@@ -38,12 +38,13 @@ func (c *SearXNGClient) AdvancedSearch(query string,
 	categories []string,
 	engines []string, limitResults int) (models.SearxngResponse, error) {
 	var resp models.SearxngResponse
+
 	route := "/search?q=" + url.QueryEscape(query) + "&format=json"
 	formData := url.Values{}
 	formData.Set("q", query)
 	formData.Set("format", "json")
 	formData.Set("language", "es-MX")
-	formData.Set("number_of_results", string(limitResults))
+	formData.Set("number_of_results", fmt.Sprint(limitResults))
 
 	if len(categories) > 0 {
 		formData.Set("categories", strings.Join(categories, ","))
